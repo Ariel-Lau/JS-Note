@@ -36,3 +36,24 @@ undefined
 > arr
 [ 1, 2, 3 ]
 ```
+```
+> var arr=[1,4,2,5,3,7,6,9,0,8]
+undefined
+> arr.forEach(function(v,i,a){a[i]=v*v;})// v数组元素的值，i数组索引，a数组名称
+undefined
+> arr
+[ 1, 16, 4, 25, 9, 49, 36, 81, 0, 64 ]
+> arr.forEach(function(v,i,a){a[i]*=v;})
+undefined
+> arr
+[ 1, 256, 16, 625, 81, 2401, 1296, 6561, 0, 4096 ]
+> arr.forEach(function(v,i,a){a[i]*=a[i];})
+undefined
+> arr
+[ 1, 65536, 256, 390625, 6561, 5764801, 1679616, 43046721, 0, 16777216 ]
+> var arr=[1,4,2,5,3,7,6,9,0,8]
+undefined
+> arr.map(function(x){return x*x})
+[ 1, 16, 4, 25, 9, 49, 36, 81, 0, 64 ]
+>
+```

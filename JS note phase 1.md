@@ -1,4 +1,6 @@
 ## 对象
+a.['']方括号带单（双）引号时，只能是属性值，不能是变量；当方括号中间不带引号（单双）时，是变量而不是属性值。
+obj.key 当用.访问对象属性时，.后跟的只能是属性值，不能是变量
 ```
  var a= {"key":'value'}
 undefined
@@ -38,21 +40,21 @@ undefined
 > obj
 { a: 'a', b: 'b', x: 'x', c: 'c' }
 > for(var prop in obj)
-... console.info(prop+":"+obj[prop])
+... console.info(prop+":"+obj[prop]) //此处的prop是for in中的var prop变量，不是属性值
 a:a
 b:b
 x:x
 c:c
 undefined
 > for(var prop in obj)
-... console.info(prop+":"+obj.prop)
+... console.info(prop+":"+obj.prop) //此处的prop是属性值，不是for in中的var prop变量。
 a:undefined
 b:undefined
 x:undefined
 c:undefined
 undefined
 > for(var prop in obj)
-... console.info(prop+":"+obj['prop'])
+... console.info(prop+":"+obj['prop']) //此处的prop是属性值，不是for in中的var prop变量。
 a:undefined
 b:undefined
 x:undefined
