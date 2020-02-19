@@ -1,3 +1,4 @@
+   ![](./imgs/sumary.png)
    ### 1.call和apply的区别是什么，哪个性能好一些?
    call和apply都是Function原型上的方法，都是改变函数的this指向，指向当前绑定的函数。
    1. `fn.cal(obj, 10, 20, 30);` // 第一个参数是绑定的对象，后面可以传入多个参数给fn，一个个参数
