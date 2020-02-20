@@ -1,3 +1,4 @@
+   ## 基础知识开始表演
    ![](./imgs/sumary.png)
    ### 1.call和apply的区别是什么，哪个性能好一些?
    call和apply都是Function原型上的方法，都是改变函数的this指向，指向当前绑定的函数。
@@ -716,3 +717,136 @@ var b = 18;
 console.log(b); // 18 输出的是全局变量b
 ```
 
+### 18.
+题目：
+```
+var a = ?;
+if (a == 1 && a == 2 && a == 3) {
+    console.log(1);
+}
+```
+知识点铺垫：
+    ==进行比较的时候，如果左右两边数据类型不一样，则先转换为相同的数据类型，然后再进行比较
+    1. {} == {}两个对象进行比较，比较的是堆内存的地址 
+    2. null == undefined // true;null === undefined // false
+    3. NaN == NaN // false NaN和谁都不想等
+    4. [12] == '12' 对象(数组也是对象)和字符串比较，是把对象toString()转换为字符串后再进行比较的
+    5. 剩余所有情况在进行比较的时候，都是转换为数字（前提：数据类型不一样）
+        （1）对象转数字：先转换为字符串，然后再转换为数字；
+        （2）字符串转数字：只要出现一个非数字字符，结果就是NaN;
+        （3）布尔转数字：true -> 1 false -> 0
+        （4）null转数字0；
+        （5）undefined转数字NaN;
+        （6）[12]==true => Number([12].toString()) == 1 // false [12]转换成字符串'12'，再转换成数字12
+        （7）[] == false => 0 == 0 // true []空数组转换成数字0
+        （8）[] == 1 => 0 == 1 // false
+        （9）'1' == 1 => 1 == 1 // true
+        （10）true == 2 => 1 == 2 // false
+        ......
+
+解答：
+方法一：对象和数字比较：先把对象.toString()变为字符串，然后再转换为数字
+```
+var a = {
+    n: 0,
+    // 私有的属性方法
+    toString: function() {
+        // 执行前改变值
+        return ++this.n;
+    }
+};
+// a.toString(); // 此时调取的就不再是Object.prototype.toString了，调用的是自己私有的toString，即返回的是number类型的值；如果对象直接调用Object.prototype.toString会返回'[object Object]'
+// 每一次==比较的时候都会改变a的值，第一次用a判断a会变成1；第二次会变成2；第三次会变成3
+if (a == 1 && a == 2 && a == 3) {
+    console.log('yes');
+}
+```
+
+方法二：删除数组第一项，把删除的内容返回，原有数组改变
+```
+let a = [1, 2, 3];
+// 改变数组a原有的toString方法，等同于数组的shift方法
+a.toString = a.shift;
+// ==每比较一次就会改变a的值，第一次用toString(shift)返回的是1，第二次是2，第三次是3
+if (a == 1 && a == 2 && a == 3) {
+    console.log('yes');
+}
+```
+
+方法三：Object.defineProperty()
+知识点：
+ES6中新增的一些方法：
+    1. String.fromCharCode(n) <=> 'z'.charCodeAt() //  String.fromCharCode(122) <=> 'z'.charCodeAt()
+    2. Array.from()
+    3. Array.isArray()
+    4. Object.create(obj)
+    5. Object.defineProperty()，vue的双向数据绑定就是用Object.defineProperty()实现的
+    ```
+    let obj = {};
+    Object.defineProperty(obj, 'name', {
+        get: function() {
+            console.log('haha');
+            return this.value; // this是当前操作的属性，this.value是当前操作属性的value值
+        },
+        set: function(value) {
+            console.log('hehe');
+            this.name = value;
+        }
+    });
+    obj.name = '羊羊'; // hehe
+    obj.name; // haha
+    ```
+```
+let n = 0;
+Object.defineProperty(window, a, {
+    get: function() {
+        // this就是window.a
+        this.value ? this.value += 1 : this.value = 1;
+        return this.value;
+    }
+});
+if (a == 1 && a == 2 && a == 3) {
+    console.log('yes');
+}
+```
+
+### 19.
+题目：
+```
+let obj = {
+    2: 3,
+    3: 4,
+    length: 2,
+    push: Array.prototype.push
+};
+obj.push(1);
+obj.push(2);
+console.log(obj);
+```
+
+解答：
+知识点：
+```
+// 手动实现Array.prototype.push
+Array.prototype.push = function @@(val) {
+    this[this.length] = val;
+    // this.length在原来的基础上加1
+    return this.length;
+}
+```
+
+```
+let obj = {
+    2: 3, // obj.push(1)之后obj[2] = 1，即改变了2: 3 => 2: 1
+    3: 4, // obj.push(2)之后obj[3] = 2，即改变了3: 4 => 3: 2
+    length: 2, // obj.push(1)之后，在原来的基础上+1，即obj.length = 3，length: 3；obj.push(2)之后，在原来obj.push(1)基础上的length = 3加1，即length: 4
+    push: Array.prototype.push
+};
+// 过程：this: obj =>即 obj[obj.length] = 1 =>即 obj[2] = 1 =>即 obj.length = 3 (obj.length在原来2的基础上加1)
+obj.push(1);
+// 在obj.push(1)的基础上，过程：this: obj =>即 obj[obj.length] = 2 => 即 obj[3] = 2 =>即 obj.length = 4 (obj.length在原来3的基础上加1)
+obj.push(2);
+console.log(obj); // {2: 1, 3: 2, length: 4, push: Array.prototype.push}
+```
+
+## 算法开始表演

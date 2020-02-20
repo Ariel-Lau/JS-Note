@@ -49,6 +49,7 @@
         return args;
     }
     ```
+  * String.fromCharCode(n) <=> 'z'.charCodeAt() //  String.fromCharCode(122) <=> 'z'.charCodeAt()
 
 ## 函数相关
 * 创建一个构造函数时最好写上constructor：
@@ -82,7 +83,32 @@
     console.log('object.assign', Object.assign({}, {...testObjFrom})); // object.assign {a: "mm", b: "yy", c: "zz"}
   ```
 
-* console.dir()可以显示一个对象的所有属性和方法
+* Object.created(A)：创建一个空对象obj，并且让空对象obj作为A对象所属构造函数的实例（obj._proto_=A）
+  ```
+  > var obj = Object.create(null)
+  > obj
+  {}
+  ```
+
+*  Object.defineProperty()：可以监听get和set
+    Object.defineProperty()，vue的双向数据绑定就是用Object.defineProperty()实现的
+    ```
+    let obj = {};
+    Object.defineProperty(obj, 'name', {
+        get: function() {
+            console.log('haha');
+            return this.value; // this是当前操作的属性，this.value是当前操作属性的value值
+        },
+        set: function(value) {
+            console.log('hehe');
+            this.name = value;
+        }
+    });
+    obj.name = '羊羊'; // hehe
+    obj.name; // haha
+    ```
+
+* console.dir()可以显示一个对象的所有属性和方法，直接dir(obj)也可以
 * 
 ```
     let str = "test regexp";
