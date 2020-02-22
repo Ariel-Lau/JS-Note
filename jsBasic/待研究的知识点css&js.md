@@ -117,6 +117,9 @@
     })
 ```
 
+### js数组的方法：
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
+concat可以将值连接到数组
 # css
 * css的repeat()函数：https://developer.mozilla.org/zh-CN/docs/Web/CSS/repeat
 * css的minmax()函数：https://developer.mozilla.org/zh-CN/docs/Web/CSS/minmax
