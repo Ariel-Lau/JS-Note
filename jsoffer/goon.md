@@ -317,7 +317,30 @@ groups: undefined
 length: 6
 ```
 
-### 9. 
+### 9. 编写函数实现图片的懒加载
+1. 前端性能优化的重要方案
+   * 通过图片或者数据的延迟加载，可以加快页面渲染的速度，让第一次打开页面的速度变快
+   * 只有滑动到某个区域，才加载真实的图片，可以节省加载的流量
+2. 处理方案
+   * 把所有需要延迟加载的图片用一个盒子抱起来，设置宽高和默认占位图
+   * 开始让所有的img和src为空，把真实图片的地址放到img的自定义属性上，让img隐藏
+   * 等到所有其它资源都加载完成后，再开始加载图片
+   * 对于很多图片，需要滚动的时候，当前图片区域完全显示出来后再加载真实图片
+   * ......
+
+懒加载的临界点计算：
+
+![](./imgs/lazy1.png)
+
+单张图片的延迟加载：
+![](./imgs/lazy2.png)
+![](./imgs/lazy3.png)
+![](./imgs/lazy4.png)
+![](./imgs/lazysingle2.png)
+
+多张图片延迟加载：
+![](./imgs/lazymutil1.png)
+![](./imgs/lazymutil2.png)
 
 ### 10. 编写一条正则，用来验证此规则：一个6～16位的字符串，必须同时包含大小写字母和数字
 ```
@@ -850,3 +873,424 @@ console.log(obj); // {2: 1, 3: 2, length: 4, push: Array.prototype.push}
 ```
 
 ## 算法开始表演
+
+### 1.冒泡排序：for循环
+最好的时间复杂度：o(n^2)
+最差的时间复杂度：o(n^2)
+冒泡思想：让数组中的当前项和最后一项进行比较，如果当前项比后一项大，则两项交换位置（让大的考后）即可
+![](./imgs/bubble.jpg)
+
+代码实现：
+```
+function bubble(arr) {
+    let tmp = null;
+    // 外层循环i控制比较的轮数
+    for (let i = 0; i < arr.length - 1; i++) {
+        // i = 0 第一轮：一个都没有放到排序好的数组里
+        // i = 1 第二轮：经过第一轮，排序好的数组已经在数组里放了1个值
+        // i = 2 第三轮：经过第一、二轮，排序好的数组已经在数组里放了2个值
+        // ....
+        // 里层循环控制每一轮比较的次数j
+        // arr.length - 1 - i 每循环一轮之后剩余要比较的元素个数就少一个，所以经过i轮循环后需要比较的元素就只有arr.length - 1 - i个
+        for (let j = 0; j < arr.length - 1 - i; j++) {
+            if (arr[j] > arr[j+1]) {
+                // 当前项大于后一项
+                tmp = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = tmp;
+            }
+        }
+    }
+    return arr;
+}
+
+// 测试结果
+let arr = [2, 1, 5, 3, 9, 4];
+arr = bubble(arr);
+console.log(arr); // [1, 2, 3, 4, 5, 9]
+```
+
+### 2.插入排序：for循环
+![](./imgs/insert.png)
+思想：开辟一个新的数组，存放从要排序的数组中取到的值，然后再一个一个从未排序的数组中取值，再和新数组中的各个元素比较（可以从后往前（从新数组最后一项比较）也可以从前往后（从新数组第一项开始比较）），直到新元素插入到新数组中
+```
+function insertSort(arr) {
+    // 1.准备一个新数组，用来存储从数组中取到的元素（类似抓到手里的牌），开始先取一个元素（类似先抓一张牌进来）
+    let newArr = [];
+    // 先存放第一个元素到新数组
+    newArr.push(arr[0]);
+    // 2.从第二项开始依次取元素（类似依次抓牌），一直到所有的元素都取完（一直到所有的牌都抓光）
+    for (let i = 0; i < arr.length; i++) {
+        // a是新取的元素（新抓的牌）
+        let a = arr[i];
+        // 和newArr中的元素依次比较（和newArr手里的牌依次比较（从后往前比较））
+        for (let j = newArr.length - 1; j > 0; j--) {
+            // 每一次都要比较newArr中的元素（手里的牌）
+            let b = newArr[j];
+            // 如果当前新元素a（新牌a）比要比较的元素b（牌b）大，则把a放到b的后面
+            if (a > b) {
+                // 把a放到b的后面
+                newArr.splice(j+1, 0, a);
+                // 结束此轮新牌和手里的牌比较
+                break;
+            }
+            // 已经比较到第一项，把新牌放到手中最前面即可
+            // 如果新牌已经和手里的牌比较到了第一项，则直接把新牌放到手里的最前面即可
+            if (j === 0) {
+                newArr.unshift(a);
+            }
+        }
+    }
+    return newArr;
+}
+// 测试结果
+let arr = [2, 1, 5, 3, 9, 4];
+arr = insertSort(arr);
+console.log(arr); // [1, 2, 3, 4, 5, 9]
+```
+
+### 3.快速排序：递归
+思路：
+
+![](./imgs/quick.png)
+
+基础知识：
+递归：函数执行的时候自己调用自己
+```
+function fn() {
+    fn(); // Uncaught RangeError: Maximum call stack size exceeded 这种死递归会导致栈溢出
+}
+fn();
+```
+
+```
+function fn() {
+    setTimeout(fn, 0); // 这种看似死递归的方法不会导致栈溢出错误
+}
+fn();
+```
+
+```
+// 递归实现1-10累加的和
+function sum(n) {
+    if(n > 10) {
+        // 递归的出口
+        return 0;
+    }
+    return n + sum(n + 1);
+    // return 1 + sum(2)
+    // return 1 + 2 + sum(3)
+    // return 1 + 2 + 3 + sum(4)
+    // ......
+    // return 1 + 2 + 3 + 4 + ... + 10 + sum(11)
+    // return 1 + 2 + 3 + 4 + ... + 10 + 0
+}
+let total = sum(1);
+console.log(total); // 55
+```
+
+快排的代码实现
+```
+function quickSort(arr) {
+    // 4.结束递归，找到递归的出口（当arr中小于等于1项时，则不用再继续处理）
+    if (arr.length <= 1) {
+        return arr;
+    }
+
+    // 1.找到数组的中间项，在原有的数组中把它移除
+    let midIndex = Math.flor(arr.length / 2);
+    // 基础知识细节：因为splice会返回被删除元素组成的数组，所以要通过取数组元素的下标获取到元素值，如：[1, 2, 3, 4, 5, 9].splice(2, 1)返回的是[3]，所以要通过[3][0]获取到3这个元素值
+    let midValue = arr.splice(midIndex, 1)[0];
+
+    // 2.准备左右两个数组，循环剩下数组中的每一项，比当前项小的放到左边数组中，反之放到右边数组中
+    let arrLeft = [];
+    let arrRight = [];
+    for(let i = 0; i < arr.length - 1; i ++) {
+        arr[i] < midValue ? arrLeft.push(arr[i]) : arrRight.push(arr[i]);
+    }
+
+    // 3.递归方式让左右两边的数组持续这样处理，一直到左右两边都排好序为止（最后让左边 + 中间值 + 右边拼接成为最后的结果）
+    // concat可以将值连接到数组，参考mdn：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
+    return quickSort(arrLeft).concat(midValue, quickSort(arrRight));
+
+}
+// 测试结果
+let arr = [2, 1, 5, 3, 9, 4];
+arr = quickSort(arr);
+console.log(arr); // [1, 2, 3, 4, 5, 9]
+```
+
+### 4.
+题目：
+某公司1到12月份的销售额存在一个对象里面，如下：
+{
+    1: 222,
+    2: 123,
+    5: 888
+},
+请把数据处理为如下结构：[222, 123, null, null, 888, null, null, null, null, null, null, null]
+
+方法一：
+```
+let obj = {
+    1: 222,
+    2: 123,
+    5: 888
+}
+let arr = new Array(12).fill(null).map((item, index) => obj[index+1] || null);
+console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, null, null ]
+```
+
+方法二：
+```
+let obj = {
+    1: 222,
+    2: 123,
+    5: 888
+}
+obj.length = 13;
+let arr = Array.from(obj).slice(1).map(item => typeof item === 'undefined' ? null : item);
+console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, null, null ]
+```
+
+方法三：
+```
+let obj = {
+    1: 222,
+    2: 123,
+    5: 888
+}
+// Object.keys(obj): 获取obj中所有的属性名，以数组的方式返回
+// console.log(Object.keys(obj)); // ['1', '2', '3']
+let arr = new Array(12).fill(null);
+Object.key(obj).forEach(
+    item => {
+        arr[item - 1] = obj[item];
+    }
+)
+console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, null, null ]
+```
+
+### 5.
+题目：给的两个数组，写一个方法来计算它们的交集
+let num1 = [1, 2, 2, 1];
+let num2 = [2, 2];
+// 输出结果[2]
+
+```
+let arr = [];
+for (let i = 0; i < num1.length; i++) {
+    let item1 = num1[i];
+    for (let k = 0; k < num2.length; k++) {
+        let item2 = num2[i];
+        if (item1 == item2) {
+            arr.push(item1);
+            break;
+        }
+    }
+}
+console.log(arr); // [2]
+```
+
+```
+// 交集
+num1.forEach(item => nums2.includes(item) ? arr.push(item) : null);
+// 差集
+num1.forEach(item => !nums2.includes(item) ? arr.push(item) : null);
+```
+
+```
+num1.forEach((item, index) => {
+    // index是第一个数组当前项的索引
+    // n当前项在第二个数组中找到相同的那一项的索引
+    let n = num2.indexOf(item);
+    if (n >= 0) {
+        arr.push(item);
+        // 如果找到了，则nums1和nums2中都需要剔除该重复元素，进行下一轮比较
+        nums1.splice(index, 1);
+        nums2.splice(n, 1);
+    }
+});
+```
+
+
+### 6.旋转数组
+![](./imgs/rotate.png)
+
+方法一：
+```
+function rotate(k) {
+    if (k <= 0 || k === this.length) {
+        return this;
+    }
+    if (k > this.length) {
+        k = k % this.length;
+    }
+    return this.slice(-k).concat(this.slice(0, this.length - k));
+}
+
+// 放到数组的原型上
+Array.prototype.rotate = rotate;
+// 测试
+let arr = [1, 2, 3, 4, 5, 6, 7, 8];
+> console.log(arr.rotate(3));
+[ 6, 7, 8, 1, 2, 3, 4, 5 ]
+> console.log(arr.rotate(8));
+[ 1, 2, 3, 4, 5, 6, 7, 8 ]
+> console.log(arr.rotate(10));
+[ 7, 8, 1, 2, 3, 4, 5, 6 ]
+```
+
+方法二：
+```
+// splice会改变原数组，且返回的是被切割掉的数组元素，将k～this.length - 1的元素切割后原数组arr，再与被切割掉的数组(splice的返回值)重组就行
+return [...this.splice(this.length - k), ...this];
+```
+
+方法三：旋转最初的思路
+```
+for (let i = 0; i < k; i++>) {
+    this.unshift(this.pop());
+}
+return this;
+```
+
+for循环的代码优化
+```
+// 只创建一个长度为k的数组是不能循环的，需要用fill把元素的内容补充上
+new Array(k).fill('').forEach(() => this.unshift(this.pop()))；
+return this;
+```
+
+```
+> new Array(6)
+[ <6 empty items> ]
+> new Array(6).fill(null)
+[ null, null, null, null, null, null ]
+>
+```
+
+### 7.柯里化：闭包
+函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用）
+柯里化 => 闭包：闭包的两大作用：保护；保存
+
+简单的柯里化函数思想
+```
+function fn(x) {
+    // 预先再闭包中把x存储起来
+    return function(y) {
+        return x + y;
+    }
+}
+console.log(fn(100)(200)); // 300
+// 函数第一次执行时fn(100)当前作用域没有被销毁，因为形成了一个闭包，把传入的100先存起来了，当第二次执行的时候，寻找x直接往上一次未被销毁的闭包中寻找x即可
+```
+
+几个改变this指向的函数对比：
+* bind：预先把this和函数中要传的参数处理好，但是不执行，返回一个函数；传参也是一个一个传入
+* call：函数会执行，返回函数执行的结果，传参数一个一个传；
+* apply：函数会执行，返回函数执行的结果，传参数以数组的形式传入；
+
+```
+let obj = {
+    name: 'mm'
+};
+function fn(...arg) {
+    console.log(this, arg);
+}
+// 点击的时候fn中的this => obj arg => [100, 200, 事件对象]
+// document.body.onclick = fn.bind(obj, 100, 200);
+// document.body.onclick = function(e) {
+//     fn.call(obj, 100, 200, e)
+// }
+// 执行bind方法，会返回一个匿名函数，当事件触发，匿名函数执行，我们再处理fn即可
+
+document.body.onclick = fn; // this: body arg:[事件对象]
+document.body.onclick = function (e) {
+    // e事件对象：给元素的某个事件绑定方法，当事件触发会执行这个方法，并且会把当前事件的相关信息传递给这个函数“事件对象”
+    console.log(e);
+}
+```
+**以下是重写bind方法: 柯里化预先处理思想**
+用call或者apply实现bind
+
+```
+// 函数执行形成一个闭包，把一些信息先预先存储起来，当返回的函数用到这些信息时直接从闭包形成的私有作用域中获取即可。
+(function() {
+    // this: 需要改变this的函数
+    // context: 需要改变的this指向
+    // outerArg: 其余需要传递给函数的实参信息
+    function myBind(context = window, ...outerArg) {
+        let that = this;
+        return function(...innerArg) {
+            that.apply(context, outerArg.concat(innerArg));
+            that.call(context, ...outerArg.concat(innerArg));
+        }
+    }
+    Function.prototype.myBind = myBind;
+})();
+// 测试结果
+let obj = {
+    name: 'mm'
+};
+document.body.onclick = fn.myBind(obj, 100, 200);
+```
+
+题目：
+
+![](./imgs/currying1.jpg)
+
+```
+function currying(fn, length) {
+    length = length || fn.length;
+    return function (...args) {
+        if (args.length >= length) {
+            return fn(...args);
+        }
+        return currying(fn.bind(null, ...args), length - args.length);
+    }
+}
+
+function add(n1, n2, n3, n4) {
+    return n1 + n2 + n3 + n4;
+}
+
+add = currying(add, 3);
+console.log(add(1)(2)(3)(4));
+console.log(add(1, 2)(3, 4));
+```
+上面方法的分析过程如下：
+四个的情况：`console.log(add(1)(2)(3)(4));`
+
+![](./imgs/currying2.png)
+![](./imgs/currying4.png)
+
+anonymous函数就是柯里化（闭包，bind）返回的匿名函数
+第一次bind，返回一个匿名函数anonymous1；
+第二次bind，返回一个匿名函数anonymous2；
+第三次bind，返回一个匿名函数anonymous3；
+第四次bind，返回一个匿名函数anonymous4；
+
+```
+function $add(n1, n2, n3, n4) {
+    return n1 + n2 + n3 + n4;
+}
+add = currying($add, 3);
+console.log(add(1)(2)(3)(4)); // $add.bind(null, 1).bind(null, 2).bind(null, 3)(4)
+// $add.bind(null, 1).bind(null, 2).bind(null, 3)(4)
+```
+
+两个的情况：console.log(add(1, 2)(3, 4));
+![](./imgs/currying3.jpg)
+
+add方法还可以直接按如下实现：
+`eval(arg.join('+'))`直接求和
+
+```
+let add = cruuying((...arg) => eval(arg.join('+')), 5);
+console.log(add(1,2,3,4,5));
+console.log(add(1,2)(3,4,5));
+console.log(add(1,2)(3,4)(5));
+console.log(add(1,2)(3)(4)(5));
+console.log(add(1)(2)(3)(4)(5));
+```

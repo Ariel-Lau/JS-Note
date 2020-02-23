@@ -117,6 +117,11 @@
     })
 ```
 
+### js数组的方法：
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
+concat可以将值连接到数组
+
+
 # css
 * css的repeat()函数：https://developer.mozilla.org/zh-CN/docs/Web/CSS/repeat
 * css的minmax()函数：https://developer.mozilla.org/zh-CN/docs/Web/CSS/minmax
@@ -158,3 +163,11 @@ minmax(min,max)
   https://developer.mozilla.org/zh-CN/docs/Web/CSS/position
 * background-clip  设置元素的背景（背景图片或颜色）是否延伸到边框下面：https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-clip
 * grid布局：http://houdunren.gitee.io/note/css/11%20%E6%A0%85%E6%A0%BC%E7%B3%BB%E7%BB%9F.html#%E6%A0%85%E6%A0%BC%E4%BB%8B%E7%BB%8D
+* 浏览器元素的outerHeight\outerWidth\offset().top偏移等
+  ```
+  $(window).outerHeight; // 整个浏览器的高度
+  let imgEle = $('.imgBox');
+  imgEle.offset().top; // body离元素上边距离
+  imgEle.outerHeight; // imgEle元素的高度
+  ```
+* 浏览器的onload、onready、scroll等事件
