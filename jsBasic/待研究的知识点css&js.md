@@ -50,6 +50,11 @@
     }
     ```
   * String.fromCharCode(n) <=> 'z'.charCodeAt() //  String.fromCharCode(122) <=> 'z'.charCodeAt()
+  * 字符串可以直接根据下标来找到字符串对应位置的值
+    ```
+    >'mmloveyy'[5]
+    >"e"
+    ```
 
 ## 函数相关
 * 创建一个构造函数时最好写上constructor：
@@ -120,6 +125,33 @@
 ### js数组的方法：
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
 concat可以将值连接到数组
+
+### Set
+  ```
+  const set = new Set(['foo', 'bar', 'baz', 'foo']);
+  undefined
+  set
+  Set(3) {"foo", "bar", "baz"}[[Entries]]0: "foo"1: "bar"2: "baz"size: (...)__proto__: Set
+  typeof set
+  "object"
+  set[0]
+  undefined
+  set.size
+  3
+  ```
+
+### Map
+```
+const mapper = new Map([['1', 'a'], ['2', 'b']]);
+
+undefined
+mapper
+Map(2) {"1" => "a", "2" => "b"}
+typeof mapper
+"object"
+mapper.size
+2
+```
 
 
 # css

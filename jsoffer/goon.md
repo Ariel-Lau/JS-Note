@@ -216,6 +216,17 @@ let s = 'lmmmmyyzyhhgs';
 let t = 'zy';
 consolelog(s.searchIndexOf(t)); // 7
 ```
+方法三：自己想的，参考这个地址中的polyfill：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+```
+if (!String.prototype.startsWith) {
+    Object.defineProperty(String.prototype, 'startsWith', {
+        value: function(search, pos) {
+            pos = !pos || pos < 0 ? 0 : +pos;
+            return this.substring(pos, pos + search.length) === search; // 参考这段代码
+        }
+    });
+}
+```
 
 ### 7.输出下面代码运行结果
 ```

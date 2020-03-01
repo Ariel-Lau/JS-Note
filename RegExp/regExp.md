@@ -607,4 +607,78 @@ let reg = /\w{6,16}/; // ?? \w 数字、字母、下划线中的任意一个字�
     console.log(RegExp.$3); // 65
     ```
 
+    =========================================   以下摘自MDN    =========================================
+    ## 字符串的replace方法
+    MDN: https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+    1. 实现交换字符串中的两个单词
+    ```
+    var re = /(\w+)\s(\w+)/;
+    var str = "John Smith";
+    var newstr = str.replace(re, "$2, $1");
+    // Smith, John
+    console.log(newstr);
+    ```
 
+    2. 将驼峰转成中横线连接
+
+    使用行内函数来修改匹配到的字符。
+    在这个例子中，所有出现的大写字母转换为小写，并且在匹配位置前加一个连字符。重要的是，在返回一个替换了的字符串前，在匹配元素前进行添加操作是必要的。
+
+    在返回前，替换函数允许匹配片段作为参数，并且将它和连字符进行连接作为新的片段。
+
+    ```
+    function styleHyphenFormat(propertyName) {
+        // macth是匹配到的字符串
+        function upperToHyphenLower(match) {
+            return '-' + match.toLowerCase();
+        }
+        return propertyName.replace(/[A-Z]/g, upperToHyphenLower);
+    }
+    styleHyphenFormat('borderTop'); // border-top
+    ```
+    因为我们想在最终的替换中进一步转变匹配结果，所以我们必须使用一个函数。这迫使我们在使用toLowerCase()方法前进行评估。如果我们尝试不用一个函数进行匹配，那么使用toLowerCase() 方法将不会有效。
+
+    ```
+        var newString = propertyName.replace(/[A-Z]/g, '-' + '$&'.toLowerCase());  // won't work
+    ```
+    这是因为 '$&'.toLowerCase() 会先被解析成字符串字面量（这会导致相同的'$&')而不是当作一个模式。
+
+    3. 使用行内函数和正则来避免循环
+    下例把某种模式的字符串转换为一个对象数组（其元素为对象）。
+
+    输入：
+    一个由 x，- 和 _ 组成的字符串。
+
+    ```
+    x-x_
+
+    ---x---x---x---
+
+    -xxx-xx-x-
+
+    _x_x___x___x___
+    ```
+    输出：
+
+    一个数组对象。'x' 产生一个 'on' 状态，'-'（连接符）产生一个 'off' 状态，而 '_' （下划线）表示 'on' 状态的长度。
+    ```
+    [
+    { on: true, length: 1 },
+    { on: false, length: 1 },
+    { on: true, length: 2 }
+    ...
+    ]
+    ```
+    代码片段：
+
+    ```
+    var str = 'x-x_';
+    var retArr = [];
+    str.replace(/(x_*)|(-)/g, function(match, p1, p2) {
+    if (p1) { retArr.push({ on: true, length: p1.length }); }
+    if (p2) { retArr.push({ on: false, length: 1 }); }
+    });
+
+    console.log(retArr);
+    ```
+    该代码片段生成了一个数组，包含三个期望格式的对象，避免了使用 for 循环语句。
