@@ -57,9 +57,9 @@
 
 #### 箭头函数和普通函数的区别
 1. 箭头函数语法上比普通函数更加简洁（ES6中每一种函数都可以使用形参默认值和剩余运算符）
-2. 箭头函数没有自己的this，它里面出现的this是继承函数所处上下文中的this（使用call/apply等任何方式都无法改变this的指向）；普通函数有自己的this，可以通过call/apply来改变this指向。
+2. 箭头函数没有自己的this，它里面出现的this是继承函数所处上下文中的this（使用call/apply等任何方式都无法改变this的指向），内部的this就是外部代码块的this；普通函数有自己的this，可以通过call/apply来改变this指向。
 3. 箭头函数中没有arguments(类数组)，只能基于...agr获取传递的参数集合（数组）
-4. 箭头函数不能被new执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
+4. 箭头函数不能被new执行，即不能被当成构造函数执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
 ```
 var obj = {};
 let fn = () => {console.log(this)}
@@ -119,7 +119,7 @@ each([10, 20, 30], function(item, index){
 })
 ```
 
-箭头函数中没有arguments(类数组)，只能基于...agr获取传递的参数集合（数组）
+* 箭头函数中没有arguments(类数组)，只能基于...agr获取传递的参数集合（数组）
 ```
 let fn = (...arg) => {
     console.log(arguments); // VM9096:2 Uncaught ReferenceError: arguments is not defined
@@ -128,7 +128,7 @@ let fn = (...arg) => {
 fn(10, 20, 30);
 ```
 
-箭头函数不能被new执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
+* 箭头函数不能被new执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
 ```
 function Fn() {
     this.x = 100;
@@ -143,6 +143,58 @@ let Fn = () => {
 }
 let f = new Fn(); // Uncaught TypeError: Fn is not a constructor
 ```
+
+#### 箭头函数的几个注意点（es6入门）
+（1）函数体内的this对象，就是定义时所在的对象，而不是使用时所在的对象。
+ 普通函数的this对象的指向是可变的，但是在箭头函数中，它是固定的，即时定义是所在的对象，使用call/apply/bind都改变不了箭头函数的this指向
+ e.g:
+ ```
+ function foo() {
+    setTimeout(() => {
+        console.log('id:', this.id);
+    }, 100);
+    }
+
+    var id = 21;
+
+ foo.call({ id: 42 }); // id: 42
+ ```
+ 上面代码中，setTimeout的参数是一个箭头函数，这个箭头函数的定义生效是在foo函数生成时，而它的真正执行要等到100ms后。
+ 如果是普通函数，执行时this应该指向全局对象window，这时应该输出21。
+ 但是，箭头函数导致this总是指向函数定义生效时所在的对象（本例是{id: 42}，因为普通函数foo被call绑定到了{id: 42}对象上），所以输出的是42。
+
+* 箭头函数可以改变setTimeout里的this：箭头函数可以让setTimeout里面的this，绑定定义时所在的作用域，而不是指向运行时所在的作用域。下面是另一个例子。
+
+（2）不可以当作构造函数，也就是说，不可以使用new命令，否则会抛出一个错误。
+
+（3）不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+
+（4）不可以使用yield命令，因此箭头函数不能用作 Generator 函数。
+
+#### 箭头函数不适用的几个场景
+* 定义对象的方法，且该方法内部包括this。
+```
+const cat = {
+  lives: 9,
+  jumps: () => {
+    this.lives--;
+  }
+}
+```
+cat.jumps()方法是一个箭头函数，这是错误的。
+调用cat.jumps()时，如果是普通函数，该方法内部的this指向cat；
+如果写成上面那样的箭头函数，使得this指向全局对象，因此不会得到预期结果。这是因为<font color="red">对象不构成单独的作用域</font>，导致jumps箭头函数定义时的作用域就是全局作用域。
+
+* 需要动态this的时候，也不应使用箭头函数
+```
+var button = document.getElementById('press');
+button.addEventListener('click', () => {
+  this.classList.toggle('on');
+});
+```
+点击按钮会报错，因为button的监听函数是一个箭头函数，导致里面的this就是全局对象。如果改成普通函数，this就会动态指向被点击的按钮对象。
+
+* 如果函数体很复杂，有许多行，或者函数内部有大量的读写操作，不单纯是为了计算值，这时也不应该使用箭头函数，而是要使用普通函数，这样可以提高代码可读性。
 
 ### 5.如何把一个字符串中的大小写取反（大写变小写，小写变大写），例如'AbC'变'aBc'
 思路一：for循环遍历字符串中的每个元素，性能不好
@@ -1182,13 +1234,14 @@ return this;
 ```
 
 ### 7.柯里化：闭包
-函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用）
+函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即将多参数的函数转换成单参数的形式
 柯里化 => 闭包：闭包的两大作用：保护；保存
+柯里化：将多参数的函数转换成单参数的形式。
 
 简单的柯里化函数思想
 ```
 function fn(x) {
-    // 预先再闭包中把x存储起来
+    // 预先在闭包中把x存储起来
     return function(y) {
         return x + y;
     }
