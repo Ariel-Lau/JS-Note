@@ -559,6 +559,46 @@ Array.prototype.ownFlat = ownFlat;
 arr = arr.ownFlat();
 ```
 
+#### 题目扩展mm：
+<font color="red">1.数组去重：</font>
+方法一：利用JS对象的特性，去除数组中的重复项
+js对象的特性：在js对象中 key 是永远不会重复的
+利用JS对象的特性，去除数组中的重复项
+    js对象的特性：在js对象中 key 是永远不会重复的
+    思路：
+    1.把数组转成一个js对象
+    2.把数组中的值，变成js对象当中的key
+    3.把对象再还原成数组
+```
+// 1.把数组转成一个js对象
+function toObject(arr){
+    var obj = {}; // 私有对象
+    for(var i=0; i < arr.length; i++) {
+        // 2.将数组中的值等于对象中的key
+        obj[arr[i]] = true; //随便给一个变量值为true
+    }
+    return obj;//将转换后的对象返回
+}
+// 3.把这个对象转成数组
+function key(obj){
+var arr=[];
+for(var attr in obj){
+    // 严谨：判断属性是否是obj对象自己的
+    if(obj.hasOwnProperty(attr)){
+    arr.push(attr);//将对象属性添加到数组中
+    }
+}
+return arr;
+}
+// 综合方法：将上面两个方法合并。去掉数组中的重复项
+function unique(newArr){
+return key(toObject(newArr));
+}
+// 调用去重的方法
+var arr=[1,1,2,3,2,5,4,5,6];
+console.log(unique(arr)); // [1,2,3,4,5,6]
+```
+
 ### 14.实现一个new
 `let dog = new Dog('欢欢');`
 new一个实例的过程：
@@ -634,6 +674,14 @@ for (var i = 0; i < 10; i++) {
     }, 1000);
 }
 // 10， 10， 10......
+```
+
+**其它类似题目扩散mm**：如果是下面这个写法的话不会输出10, 10, 10, 10....，因为是直接同步输出，而不是异步输出，每次输出的都是当前循环轮的i值，而不会被下次循环的i更新值，而setTimeout异步的话是会改变上一轮的全局变量i的值。
+
+```
+for (var i = 0; i < 10; i++) {
+    console.log(i);
+}
 ```
 
 如果要输出1，2，3，4...
@@ -1235,10 +1283,10 @@ return this;
 
 ### 7.柯里化：闭包
 函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即将多参数的函数转换成单参数的形式
-柯里化 => 闭包：闭包的两大作用：保护；保存
+柯里化 => 闭包：闭包的两大作用：保护；保存；(mm理解：保护内部的变量不被外层作用域访问到，保存外层作用域的变量和方法)
 柯里化：将多参数的函数转换成单参数的形式。
 
-简单的柯里化函数思想
+简单的柯里化函数思想（参看MDN中的例子：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures）
 ```
 function fn(x) {
     // 预先在闭包中把x存储起来
