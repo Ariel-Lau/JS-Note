@@ -600,10 +600,11 @@ console.log(unique(arr)); // [1,2,3,4,5,6]
 ```
 
 ### 14.实现一个new
+参看MDN：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new
 `let dog = new Dog('欢欢');`
 new一个实例的过程：
 1. 像普通函数执行一样，形成一个私有的作用域；形参赋值；变量提升；
-2. 默认创建一个对象，让函数中的this执行这个对象，这个对象就是当前类的一个实例
+2. 默认创建一个对象（一个继承自 `Dog.prototype` 的新对象被创建），让函数中的this执行这个对象，这个对象就是当前类的一个实例
 3. 代码执行
 4. 默认把创建的对象返回
 
