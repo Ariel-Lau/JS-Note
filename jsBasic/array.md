@@ -261,6 +261,10 @@ true
 'object'
 ```
 
+### `[].slice.call()`和`Array.prototype.call()`的区别：
+`[].slice.call()`：（1）先建一个空数组[]，（2）然后在数组的原型对象上找到slice方法，（3）最后通过call绑定到需要调用slice()方法的对象上（如类数组对象）。
+`Array.prototype.call()`: （1）直接在数组的原型对象上找到slice方法，（2）然后通过call绑定到需要调用slice()方法的对象上（如类数组对象）。
+`Array.prototype.call()`找到slice方法的性能要优于`[].slice.call()`，因为是直接在数组原型对象上找的。
 9. ...扩展运算符
 **浅拷贝**
 * 解构赋值

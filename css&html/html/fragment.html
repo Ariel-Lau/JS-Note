@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>文档碎片</title>
+    </head>
+    <body>
+        <ul id="frag"></ul>
+        <script>
+        var test = document.getElementById('frag');
+        var lists = ['orange', 'red', 'blue'];
+        var frag = document.createDocumentFragment();
+        lists.forEach(item => {
+            var ele = document.createElement('li');
+            ele.innerText = item;
+            frag.appendChild(ele);
+        });
+        test.appendChild(frag);
+        </script>
+    </body>
+</html>
