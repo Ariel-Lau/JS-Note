@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>css</title>
+    </head>
+    <body>
+        <div id="top">4.1 测试锚点回到顶部</div>
+        <p>1. 实现一个平行四边形（利用transform: skew(-20deg)实现）</p>
+        <div class="parall-wrap">
+            <!-- 如果不设置内层元素的样式，那么文字也会跟着被倾斜20度 -->
+            <p>我是一个平行四边形</p>
+        </div>
+        <div id="some-top">4.2 测试锚点回到特定位置</div>
+        <p>2. 实现一个梯形（利用border实现），width: 100px; height:0;</p>
+        <div class="trapezoid"></div>
+        <p>3. 实现一个上三角形</p>
+        <p>方法一：利用border实现，width\height：0</p>
+        <div class="triggle-1"></div>
+        <p>方法二：利用两个border拼成一个三角形，width:0;height:0,transform:rotate(-40deg)</p>
+        <div class="triggle-2"></div>
+        <p>实现利用无序列表嵌套无序列表实现三级菜单</p>
+        <div>
+            <ul id="nav">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">关于我们</a>
+                    <ul id="childnav">
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">服务</a>
+                    <ul id="childnav">
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">联系我们</a>
+                    <ul id="childnav">
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <p>4. 测试锚点，回到顶部</p>
+        <a class="to-top" href="#top">回到顶部: href="#top"</a>
+        <a class="to-top" href="javascript:scrollTo(0,0)">用scrollTo()回到顶部，这个顶部是指body的顶部，如果body有padding会有空白区域</a>
+        <a class="to-top" href="#some-top">回到特定位置: href="#some-top"</a>
+        <p>5. 测试浮动&清除浮动</p>
+        <div class="float-wrap clearfix">
+            <div class="float-1">这是第一个浮动元素，浮动元素的父元素不写高度时，子元素设置浮动后父元素的高度会塌陷，如果父元素的直接子元素中只要有一个元素不是浮动的高度就不会塌陷。\n 父元素清除浮动之后高度不会塌陷</div>
+            <!-- <p class="clear-float"></p> -->
+            <div class="float-2">这是第二个浮动元素，给每个浮动元素后面添加一个空元素，clear:both清除当前元素的浮动</div>
+            <!-- <p class="clear-float"></p> -->
+            <div class="float-3">这是第三个浮动元素</div>
+            <!-- <p class="clear-float"></p> -->
+        </div>
+    </body>
+    <style>
+        body {
+            padding: 100px;
+            position: relative;
+        }
+        .parall-wrap {
+            width: 300px;
+            height: 60px;
+            border: 1px solid red;
+            transform: skew(-20deg);
+        }
+        .parall-wrap p {
+            transform: skew(20deg);
+        }
+
+        .trapezoid {
+            width: 100px;
+            height: 0;
+            border-bottom: 100px solid red;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+        }
+
+        .triggle-1 {
+            width: 0;
+            border: 100px solid;
+            border-color: transparent transparent red transparent;
+        }
+
+        .triggle-2 {
+            margin-top: 60px;
+            width: 0;
+            border: 100px solid;
+            border-color: red red transparent transparent;
+            transform: rotate(-45deg);
+        }
+
+        /* id选择器 子选择器 */
+
+        #nav>li {
+            width: 300px;
+        }
+        #nav>li>ul#childnav {
+            display:none;
+        }
+
+        #nav>li:hover>ul#childnav {
+            display:block;
+        }
+
+        .to-top {
+            display: block;
+        }
+
+        .float-wrap {
+            width: 800px;
+            border: 1px solid red;
+            /* (1).给浮动元素的父元素添加浮动来清除浮动*/
+            /* float: left; */ /* 清除浮动之后高度就不会塌陷了 */
+            /* (2).给浮动元素的父元素设置overflow: hidden | auto;通过将父元素变成BFC块级格式化上下文来清除浮动，计算BFC的高度时，浮动元素也会参与计算，所以父元素的高度不会塌陷 */
+            /* overflow: hidden;*/
+            /* overflow: auto; */
+            /* (3).给浮动元素的父元素设置高度（比浮动元素的高度高的高度），但在浮动元素高度不确定的时候不适用(清除浮动有效)*/
+            /* height: 300px; */
+            /* (4) 给父元素设置display: inline-block; 清除浮动有效。缺点：父级的margin-left:auto,margin-right:auto;时失效，无法使用margin:0 auto;这样会居中*/
+            /* display: inline-block;也是为了让父元素变成BFC */
+            /* display: inline-block;*/
+            /* margin: 0 auto; */ /* 使用display: inline-block时margin: 0 auto水平居中失效 */
+        }
+
+        /* (6）伪元素::after控制（最佳推荐）。给父元素添加一个clearfix类,content:""；可以为空，但最好为"."; （清除浮动有效）*/
+        .clearfix:after{
+            display: block; /* diaplay:block 必须 */
+            content: ''; /* 或者 content: '.'; */
+            height: 0; /* 高度为0 必须*/
+            visibility: hidden; /* 不可见 不可少*/
+            clear: both;/* 左右都清除浮动 必须*/
+            zoom: 1;/* 兼容IE6/7 */
+        }
+
+        .float-1,
+        .float-2,
+        .float-3 {
+            width: 200px;
+            height: 300px;
+        }
+
+        .float-1 {
+            border: 1px solid green;
+            float: left;
+        }
+
+        .float-2 {
+            border: 1px solid black;
+            float: right;
+        }
+
+        .float-3 {
+            border: 1px solid blue;
+            float: left;
+        }
+
+        /* (5) 在浮动元素后面添加一个空标签，设置clear:both;*/
+        .clear-float {
+            clear: both;
+        }
+    </style>
+</html>
