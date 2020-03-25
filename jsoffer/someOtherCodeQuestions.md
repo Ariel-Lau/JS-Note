@@ -251,99 +251,7 @@ console.log(add5(2));  // 7
 console.log(add10(2)); // 12
 ```
 
-## 5. 实现二叉树的广度优先搜索
-* 深度优先不需要记住所有的节点, 所以占用空间小, 而广度优先需要先记录所有的节点占用空间大；
-* 深度优先有回溯的操作(没有路走了需要回头)所以相对而言时间会长一点；
-
-* 深度优先采用的是堆栈的形式, 即先进后出；
-* 广度优先则采用的是队列的形式, 即先进先出；
-
-```javascript
-// 构造一棵二叉树
-function BinTree(value, left, right) {
-    this.value = value;
-    this.left = left;
-    this.right = right;
-}
-
-// 注意构造节点的顺序是先构造子节点，再构造父节点。
-var node6 = new BinTree('6', '', '');
-var node5 = new BinTree('5', '', '');
-var node4 = new BinTree('4', '', '');
-var node3 = new BinTree('3', node6, '');
-var node2 = new BinTree('2', node4, node5);
-var node1 = new BinTree('1', node2, node3);
-
-
-
-function bfs(node) {
-    if (!node){
-        console.log("this is an empty tree");
-        return;
-    }
-    var que = [];
-    que.push(node);
-    // 当que数组非空的时候继续while循环
-    while(que.length){
-        // 注意是shift，从第一个元素开始打印
-        var tmpNode = que.shift();
-        console.log(tmpNode.value);
-        if (tmpNode.left) {
-            que.push(tmpNode.left);
-        }
-        if (tmpNode.right) {
-            que.push(tmpNode.right);
-        }
-    }
-}
-
-bfs(node1); // 1 2 3 4 5 6
-```
-
-## 6. 实现二叉树的深度优先搜索
-### 1) 递归实现
-```javascript
-// 构造一棵二叉树
-function BinTree(value, left, right) {
-    this.value = value;
-    this.left = left;
-    this.right = right;
-}
-
-// 注意构造节点的顺序是先构造子节点，再构造父节点。
-var node6 = new BinTree('6', '', '');
-var node5 = new BinTree('5', '', '');
-var node4 = new BinTree('4', '', '');
-var node3 = new BinTree('3', node6, '');
-var node2 = new BinTree('2', node4, node5);
-var node1 = new BinTree('1', node2, node3);
-
-// 递归实现
-function depSearch(node) {
-    if (!node){
-        console.log("this is an empty tree");
-        return;
-    }
-    var que = [];
-    que.push(node);
-    while(que.length) {
-        var tmpNode = que.pop();
-        console.log(tmpNode.value);
-        if(tmpNode.left) {
-            depSearch(tmpNode.left);
-        }
-        if (tmpNode.right) {
-            depSearch(tmpNode.right);
-        }
-    }
-}
-
-depSearch(node1); // 1 2 4 5 3 6
-
-// 非递归实现，构造二叉树的方式需要改改，带children的形式
-```
-
-## 7. 找出数组中的最大值
+## 5. 找出数组中的最大值
 方法一：`Math.max.apply(null, arr)`
 ```javascript
 var arr = [6, 4, 1, 8, 2, 11, 3];
@@ -362,7 +270,7 @@ var arr = [6, 4, 1, 8, 2, 11, 3];
 console.log(arr.reduce((max, item) => Math.max(max, item))); // 11
 ```
 
-## 8. 驼峰命名和下划线的转换
+## 6. 驼峰命名和下划线的转换
 ### 1） 驼峰命名转下划线
 ```javascript
 var str = 'javaScriptStudy';
@@ -380,7 +288,7 @@ str = str.replace(reg, function(arr, letter){
 console.log(str); // "javaScriptStudy"
 ```
 
-## 9. 用正则交换单词的顺序
+## 7. 用正则交换单词的顺序
 ```javascript
 var str = 'hello world';
 var reg = /(\w*)\s(\w*)/;
@@ -388,7 +296,7 @@ str = str.replace(reg, '$2 $1'); // 单词之间的连接符号是啥，替换�
 console.log(str); // world hello
 ```
 
-## 10.原生js判断浏览器是否支持某个css属性
+## 8.原生js判断浏览器是否支持某个css属性
 `document.documentElement.style`获取浏览器支持的样式属性
 获取到支持的属性如下：带横线的属性需要转成驼峰命名才能找到属性
 
@@ -433,60 +341,7 @@ console.log(hasCss('ha-ha')); // false
 'msTransform' in document.documentElement.style
 ```
 
-## 11. 实现二分查找：输入的数组必须是一个已经排好序的数组，如果未排序，则先进行排序
-
-如果找到目标值，则返回目标值在数组中的下标。
-算法的核心是通过移动左右下标指针来实现的，不管是非递归实现还是递归实现，都是通过移动`low`和`high`来实现的。
-
-非递归实现
-
-```javascript
-function binSearch(arr, target){
-    let low = 0;
-    let high = arr.length - 1;
-    while(low <= high) {
-        // 注意这个mid取值是根据low和high的平均值来取值的，且要放在while循环里，每次更新low和high之后才会重新计算mid
-        let mid = Math.floor((low + high) / 2);
-        if (arr[mid] === target) {
-            return mid;
-        }
-        else if (arr[mid] < target) {
-            low = mid + 1;
-        }
-        else {
-            high = mid - 1;
-        }
-    }
-    return -1;
-}
-let res = binSearch([1, 3, 5, 8, 9], 3);
-console.log(res); // 1
-```
-
-递归实现
-```javascript
-function binSearch(arr, low, high, target){
-    if(low > high) {
-        return -1;
-    }
-    let mid = Math.floor((low + high) /2);
-    if (arr[mid] == target) {
-        return mid;
-    }
-    else if (arr[mid] < target) {
-        low = mid + 1;
-        return binSearch(arr, low, high, target);
-    }
-    else {
-        high = mid - 1;
-        return binSearch(arr, low, high, target);
-    }
-}
-let res = binSearch([1, 3, 5, 8, 9], 0, 4, 3);
-console.log(res); // 1
-```
-
-## 12. js的深拷贝和浅拷贝
+## 9. js的深拷贝和浅拷贝
 ### 什么是深拷贝？ 拷贝实例
 深拷贝是开辟一块新的内存地址，将原对象的各个属性逐个复制进去。对拷贝对象和源对象各自的操作互不影响。
 
@@ -688,3 +543,169 @@ console.log('改变拷贝对象之后的原对象：', testObj);
 //   school: 'dlut',
 //   age: 16 }
 ```
+
+## 10. 实现二分查找：输入的数组必须是一个已经排好序的数组，如果未排序，则先进行排序
+
+如果找到目标值，则返回目标值在数组中的下标。
+算法的核心是通过移动左右下标指针来实现的，不管是非递归实现还是递归实现，都是通过移动`low`和`high`来实现的。
+
+非递归实现
+
+```javascript
+function binSearch(arr, target){
+    let low = 0;
+    let high = arr.length - 1;
+    while(low <= high) {
+        // 注意这个mid取值是根据low和high的平均值来取值的，且要放在while循环里，每次更新low和high之后才会重新计算mid
+        let mid = Math.floor((low + high) / 2);
+        if (arr[mid] === target) {
+            return mid;
+        }
+        else if (arr[mid] < target) {
+            low = mid + 1;
+        }
+        else {
+            high = mid - 1;
+        }
+    }
+    return -1;
+}
+let res = binSearch([1, 3, 5, 8, 9], 3);
+console.log(res); // 1
+```
+
+递归实现
+```javascript
+function binSearch(arr, low, high, target){
+    if(low > high) {
+        return -1;
+    }
+    let mid = Math.floor((low + high) /2);
+    if (arr[mid] == target) {
+        return mid;
+    }
+    else if (arr[mid] < target) {
+        low = mid + 1;
+        return binSearch(arr, low, high, target);
+    }
+    else {
+        high = mid - 1;
+        return binSearch(arr, low, high, target);
+    }
+}
+let res = binSearch([1, 3, 5, 8, 9], 0, 4, 3);
+console.log(res); // 1
+```
+
+## 11. 实现二叉树的广度优先搜索
+* 深度优先不需要记住所有的节点, 所以占用空间小, 而广度优先需要先记录所有的节点占用空间大；
+* 深度优先有回溯的操作(没有路走了需要回头)所以相对而言时间会长一点；
+
+* 深度优先采用的是堆栈的形式, 即先进后出；
+* 广度优先则采用的是队列的形式, 即先进先出；
+
+```javascript
+// 构造一棵二叉树
+function BinTree(value, left, right) {
+    this.value = value;
+    this.left = left;
+    this.right = right;
+}
+
+// 注意构造节点的顺序是先构造子节点，再构造父节点。
+var node6 = new BinTree('6', '', '');
+var node5 = new BinTree('5', '', '');
+var node4 = new BinTree('4', '', '');
+var node3 = new BinTree('3', node6, '');
+var node2 = new BinTree('2', node4, node5);
+var node1 = new BinTree('1', node2, node3);
+
+function bfs(node) {
+    if (!node){
+        console.log("this is an empty tree");
+        return;
+    }
+    var que = [];
+    que.push(node);
+    // 当que数组非空的时候继续while循环
+    while(que.length){
+        // 注意是shift，从第一个元素开始打印
+        var tmpNode = que.shift();
+        console.log(tmpNode.value);
+        if (tmpNode.left) {
+            que.push(tmpNode.left);
+        }
+        if (tmpNode.right) {
+            que.push(tmpNode.right);
+        }
+    }
+}
+
+bfs(node1); // 1 2 3 4 5 6
+```
+
+## 12. 实现二叉树的深度优先搜索
+### 1) 递归实现
+```javascript
+// 构造一棵二叉树
+function BinTree(value, left, right) {
+    this.value = value;
+    this.left = left;
+    this.right = right;
+}
+
+// 注意构造节点的顺序是先构造子节点，再构造父节点。
+var node6 = new BinTree('6', '', '');
+var node5 = new BinTree('5', '', '');
+var node4 = new BinTree('4', '', '');
+var node3 = new BinTree('3', node6, '');
+var node2 = new BinTree('2', node4, node5);
+var node1 = new BinTree('1', node2, node3);
+
+// 递归实现
+function depSearch(node) {
+    if (!node){
+        console.log("this is an empty tree");
+        return;
+    }
+    var que = [];
+    que.push(node);
+    while(que.length) {
+        var tmpNode = que.pop();
+        console.log(tmpNode.value);
+        if(tmpNode.left) {
+            depSearch(tmpNode.left);
+        }
+        if (tmpNode.right) {
+            depSearch(tmpNode.right);
+        }
+    }
+}
+
+depSearch(node1); // 1 2 4 5 3 6
+
+// 非递归实现，构造二叉树的方式需要改改，带children的形式
+```
+
+## 13.做过什么样的性能优化处理？
+1. 代码逻辑优化：
+   （1）如利用缓存，缓存定位信息，接口请求返回的数据等
+   （2）比如城市服务城市列表页面的渲染，优化数据处理和赋值来达到性能优化效果，降低白屏
+2. 小程序
+   （1）分包，app.js < 500kb，主包体积<2M；
+   （2）请求数据静态化，将首页数据以静态json文件的格式放到cdn上；
+   （3）分屏加载：首页主要数据先加载赋值，然后再请求天气限行数据；
+   （4）添加骨架屏，骨架屏的消失时机放在数据setData之后；
+   （5）setData时尽量一次set数据，尽量不要一条数据一条数据set，因为多次setData比较耗时；
+   （6）首页尽量少用自定义组件，因为父组件到子组件的数据传输以及子组件的解析渲染都比较耗时；
+   （7）预加载，搜索卡片进入小程序先行预加载小程序运行需要的环境，降低白屏时间；
+3. webpack打包优化？
+
+## 14.项目中遇到什么问题？怎么解决的？
+
+## 15.为什么要换工作？
+* （1）个人成长（技术成长、综合能力成长）；
+* （2）职业规划（全栈）；
+* （3）业务方向；
+* （4）想和牛逼的pd合作，做牛逼的产品；
+* （5）考虑回南方发展（杭州公司面试可以提）；

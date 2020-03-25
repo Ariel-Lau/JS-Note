@@ -1,7 +1,7 @@
    ## 基础知识开始表演
    ![](./imgs/sumary.png)
    ### 1.call和apply的区别是什么，哪个性能好一些?
-   call和apply都是Function原型上的方法，都是改变函数的this指向，指向当前绑定的函数。
+   call和apply都是Function原型上的方法，都是改变函数的this指向，指向当前绑定的函数。函数会立即执行。
    1. `fn.cal(obj, 10, 20, 30);` // 第一个参数是绑定的对象，后面可以传入多个参数给fn，一个个参数
    2. `fn.apply(obj, [10, 20, 30]);` // 第二个参数是整体传给fn的，数组的形式传递参数
    3. bind也是用来改变this指向，但是bind并没有把函数立即执行，只是预先处理改变this，返回的是一个函数
@@ -15,7 +15,7 @@
    fn.call(obj, arr); // x=[1, 2, 3], y=z=undefined
    fn.call(obj, ...arr); // 给予ES6的扩展运算符也可以实现把数组中的每一项依次传递给函数
    ```
-   6. 在非严格模式下，call、apply的第一个参数传递为null或undefined时，函数体内的this会指向默认的宿主对象，在浏览器中则是window
+   6. 在非严格模式下，call、apply的第一个参数传递为null或undefined时，函数体内的this会指向默认的宿主对象，在浏览器中则是window，在node中是global
    
    ### 2.性能测试: `console.time()`、` console.timeEnd()`
     `console.time()`：可以测试出一段程序执行的时间
@@ -40,6 +40,7 @@
            return isNaN(n) ? 0 : n;
        }
        function add(n) {
+           // this就是checkNum调用之后的返回值
            return this + n;
        }
        function minus(n) {
@@ -54,13 +55,14 @@
    console.log((5).add(3).minus(2));
    ```
 
-### 4.箭头函数与普通函数（function）的区别是什么？构造函数（function）可以使用生成实例，那么箭头函数可以么？为什么？
+### 4.箭头函数与普通函数（function）的区别是什么？构造函数（function）可以用来构造生成实例，那么箭头函数可以么？为什么？
 
 #### 箭头函数和普通函数的区别
 1. 箭头函数语法上比普通函数更加简洁（ES6中每一种函数都可以使用形参默认值和剩余运算符）
-2. 箭头函数没有自己的this，它里面出现的this是继承函数所处上下文中的this（使用call/apply等任何方式都无法改变this的指向），内部的this就是外部代码块的this；普通函数有自己的this，可以通过call/apply来改变this指向。
-3. 箭头函数中没有arguments(类数组)，只能基于...agr获取传递的参数集合（数组）
-4. 箭头函数不能被new执行，即不能被当成构造函数执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
+2. 箭头函数没有自己的this，它里面出现的this是继承函数所处上下文中的this（使用call/apply等任何方式都无法改变this的指向），内部的this就是外部代码块的this；
+   普通函数有自己的this，可以通过call/apply来改变this指向。
+3. 箭头函数不能被new执行，即不能被当成构造函数执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
+4. 箭头函数中没有arguments(类数组)，只能基于...arg获取传递的参数集合（数组）
 ```javascript
 var obj = {};
 let fn = () => {console.log(this)}
@@ -76,16 +78,20 @@ fn2.call(obj)
 ```javascript
 document.body.onclick = () => {
     // this: window 不是当前操作的body了
+    // mm：body绑定的直接就是一个箭头函数，而这个箭头函数产生的上下文就是window，只不过在window上产生该箭头函数之后绑定到body元素上
+    console.log(this);
 }
+// Window {parent: Window, opener: null, top: Window, length: 0, frames: Window, …}
 ```
 
 ```javascript
 document.body.onclick = function() {
+    // mm：在body上创建并绑定一个function函数
     // this: body
     // sort()方法的this是arr
     arr.sort(function (a, b)) {
         // this: window 回调函数中的this一般都是window
-        // this不是sort的原因：sort只是执行传入的已经创建好的function，而这个创建好的function是在window上创建的函数
+        // this不是sort的原因：sort只是执行传入的已经创建好的function，而这个创建好的function（即回调函数）是在window上创建的函数
         return a - b;
     }
 }
@@ -93,11 +99,31 @@ document.body.onclick = function() {
 
 ```javascript
 document.body.onclick = function() {
+    console.log(this); // body
+}
+
+document.body.onclick = function() {
+    // sort回调函数的箭头函数是在function上创建的，而function的上下文是body，所以箭头函数的this是body
     arr.sort((a, b) => {
+        console.log(this); // body
         // this: body，箭头函数上下文的this
         return a - b;
     }
 }
+
+document.body.onclick = () => {
+    console.log(this); // window
+}
+
+document.body.onclick = () => {
+    // sort回调函数的箭头函数是在function上创建的，而function的上下文是body，所以箭头函数的this是body
+    arr.sort((a, b) => {
+        console.log(this); // window
+        // this: body，箭头函数上下文的this
+        return a - b;
+    }
+}
+
 ```
 
 * 回调函数：把一个函数B作为实参传递给另一个函数A，函数A在执行的时候，可以把传递进来的函数B去执行（执行N次，可传值，可改this）
@@ -125,11 +151,12 @@ each([10, 20, 30], function(item, index){
 let fn = (...arg) => {
     console.log(arguments); // VM9096:2 Uncaught ReferenceError: arguments is not defined
     console.log(arg); // [10, 20, 30]
+    console.log(...arg); // 10 20 30
 }
 fn(10, 20, 30);
 ```
 
-* 箭头函数不能被new执行（因为：箭头函数没有this也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
+* 箭头函数不能被new执行（因为：箭头函数没有this（this是函数被创建时的上下文，并不是箭头函数自己的this）也没有prototype（重点），因为没有prototype所以也没有原型上的constructor构造函数，故不能new创建实例）
 ```javascript
 function Fn() {
     this.x = 100;
@@ -143,32 +170,46 @@ let Fn = () => {
     this.x = 200;
 }
 let f = new Fn(); // Uncaught TypeError: Fn is not a constructor
+// 如果这样执行的话，x会被绑定到window对象，因为箭头函数的this是window
+f = Fn(); // window.x = 100;
 ```
 
 #### 箭头函数的几个注意点（es6入门）
 （1）函数体内的this对象，就是定义时所在的对象，而不是使用时所在的对象。
- 普通函数的this对象的指向是可变的，但是在箭头函数中，它是固定的，即时定义是所在的对象，使用call/apply/bind都改变不了箭头函数的this指向
+ 普通函数的this对象的指向是可变的，但是在箭头函数中，它是固定的，即是定义时所在的对象，使用call/apply/bind都改变不了箭头函数的this指向
  e.g:
  ```javascript
  function foo() {
     setTimeout(() => {
         console.log('id:', this.id);
     }, 100);
-    }
+ }
 
-    var id = 21;
+ var id = 21;
 
  foo.call({ id: 42 }); // id: 42
+ ```
+
+ ```javascript
+ function foo() {
+    setTimeout(function() {
+        console.log('id:', this.id); // this => window，this.id => window.id = 21
+    }, 100);
+ }
+
+ var id = 21;
+
+ foo.call({ id: 42 }); // 21
  ```
  上面代码中，setTimeout的参数是一个箭头函数，这个箭头函数的定义生效是在foo函数生成时，而它的真正执行要等到100ms后。
  如果是普通函数，执行时this应该指向全局对象window，这时应该输出21。
  但是，箭头函数导致this总是指向函数定义生效时所在的对象（本例是{id: 42}，因为普通函数foo被call绑定到了{id: 42}对象上），所以输出的是42。
 
-* 箭头函数可以改变setTimeout里的this：箭头函数可以让setTimeout里面的this，绑定定义时所在的作用域，而不是指向运行时所在的作用域。下面是另一个例子。
+* 箭头函数可以改变setTimeout里的this：箭头函数可以让setTimeout里面的this，绑定定义时所在的作用域，而不是指向运行时所在的作用域。
 
 （2）不可以当作构造函数，也就是说，不可以使用new命令，否则会抛出一个错误。
 
-（3）不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+（3）不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替，即...arg。
 
 （4）不可以使用yield命令，因此箭头函数不能用作 Generator 函数。
 
@@ -234,8 +275,7 @@ function searchIndexOf(T) {
         return -1;
     }
     for(let i = 0; i < lenS - lenT + 1; i++) {
-        let char = this[i];
-        // 判断截取的字符串和传入的字符串是否相等
+s        // 判断截取的字符串和传入的字符串是否相等
         // 不用三元运算符，因为找到了就结束了，需要break，减少循环，优化性能，三元运算符不能break
         // res = this.substr(i, lenT) === T ? i : null;
         if (this.substr(i, lenT) == T) {
@@ -251,7 +291,7 @@ String.prototype.searchIndexOf = searchIndexOf;
 
 let s = 'lmmmmyyzyhhgs';
 let t = 'zy';
-consolelog(s.searchIndexOf(t)); // 7
+console.log(s.searchIndexOf(t)); // 7
 ```
 
 方法二：正则
@@ -267,7 +307,7 @@ String.prototype.searchIndexOf = searchIndexOf;
 
 let s = 'lmmmmyyzyhhgs';
 let t = 'zy';
-consolelog(s.searchIndexOf(t)); // 7
+console.log(s.searchIndexOf(t)); // 7
 ```
 方法三：自己想的，参考这个地址中的polyfill：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
 ```javascript
@@ -275,7 +315,7 @@ if (!String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {
         value: function(search, pos) {
             pos = !pos || pos < 0 ? 0 : +pos;
-            return this.substring(pos, pos + search.length) === search; // 参考这段代码
+            return this.substring(pos, pos + search.length) === search; // 参考这段代码，和上述for循环是一样的
         }
     });
 }
@@ -300,9 +340,9 @@ console.log(obj); // {'100': 'haha'}
 ```javascript
 // example2
 var a = {}, b = Symbol('123'), c = Symbol('123');
-a[b]='b';
-a[c]='c';
-console.log(a[b]); // Symbol是ES6中新增的数据类型，typeof Symbol('123') === 'Symbol'，它创建出来的值是唯一值 Symbol('123') === Symbol('123'); // false
+a[b]='b'; // a[Symbol('123')] = 'b'
+a[c]='c'; // a[Symbol('123')] = 'c'
+console.log(a[b]); //  b，Symbol是ES6中新增的数据类型，typeof Symbol('123') === 'Symbol'，它创建出来的值是唯一值 Symbol('123') === Symbol('123'); // false，所以这是两个不同的键值Symbol('123')、 Symbol('123')，和下面的对象转成字符串之后是相同的键值不同
 
 // Symbol类型会创建一个唯一的值
 // 如 Symbol('123') === Symbol('123'); // false
@@ -319,15 +359,15 @@ console.log(obj); // {Symbol(1): 100, Symbol(2): 200}
 ```javascript
 // example3
 var a = {}, b = {key: '123'}, c = {key: '456'};
-a[b]='b';
-a[c]='c';
-console.log(a[b]); // c
+a[b]='b'; // a['object Object'] = 'b';
+a[c]='c'; // a['object Object'] = 'c';
+console.log(a[b]); // 'c' 所以a[b] => a['object Object'] => 'c'
 
 // 1. 对象的属性名不能是一个对象（遇到对象属性名，会默认转换为字符串）
 // obj = {} arr = [12, 22] obj[arr]="测试" obj => {'12,22': '测试'}
 // 2. 普通对象.toString() 调取的是Object.prototype上的方法（这个方法是用来检测数据类型的）
-obj = {} obj.toString() => "[object object]"
-obj[b]='b' => obj['[object object]'] = 'b';
+obj = {} obj.toString() => "[object Object]"
+obj[b]='b' => obj['[object Object]'] = 'b';
 ```
 
 ```javascript
@@ -352,7 +392,7 @@ Foo.a = function() {
 Foo.a(); // 4 调用普通的Foo.a方法，输出4
 let obj = new Foo(); // obj可以调取原型上的方法 Foo.a: f => 1 obj.a: f=>2
 obj.a(); // 2 私有属性中有a 构造函数构造的对象的私有属性a: 2
-Foo.a(); // 1 调用构造函数中的Foo.a，输出1
+Foo.a(); // 1 调用构造函数中的Foo.a，输出1。执行new Foo()之后，创建了Foo.a方法，即改变了Foo.a变量名指向的函数引用，Foo.a指向console.log(1)的函数引用了，所以后续如果再次调用Foo.a()都会是最新的console.log(1)的函数，相当于Foo.a对console.log(4)的函数引用被覆盖了。
 ```
 
 ### 8.在输入框中如何判断输入的是一个正确的网址，例如：用户输入一个字符串，验证是否符合URL网址的格式
@@ -386,13 +426,14 @@ length: 6
    * 通过图片或者数据的延迟加载，可以加快页面渲染的速度，让第一次打开页面的速度变快
    * 只有滑动到某个区域，才加载真实的图片，可以节省加载的流量
 2. 处理方案
-   * 把所有需要延迟加载的图片用一个盒子抱起来，设置宽高和默认占位图
-   * 开始让所有的img和src为空，把真实图片的地址放到img的自定义属性上，让img隐藏
+   * 把所有需要延迟加载的图片用一个盒子包起来，设置宽高和默认占位图
+   * 开始让所有img的src为空，把真实图片的地址放到img的自定义属性上（如data-img），让img隐藏
    * 等到所有其它资源都加载完成后，再开始加载图片
    * 对于很多图片，需要滚动的时候，当前图片区域完全显示出来后再加载真实图片
    * ......
 
 懒加载的临界点计算：
+图片高度 + body顶部距离图片顶部的高度 <= 窗口视图的高度 + 滚动条已滚动的高度
 
 ![](./imgs/lazy1.png)
 
@@ -415,6 +456,7 @@ let reg = /(?!^[a-zA-Z]+$)(?!^[a-z0-9]+$)(?!^[A-Z0-9]+$)^[a-zA-Z0-9]{6,16}$/;
 
 正则回顾：
 （1）正向预查(?=pattern)：必须符合该正则规则，要匹配的字符串，必须满足pattern这个条件
+
 e.g:
 正则表达式/lmm/会匹配lmm，也会匹配lmm2中的lmm，如果只希望lmm只能匹配lmm2中的lmm，则可以这样写：/lmm(?=2)/
 ```javascript
@@ -466,11 +508,11 @@ function getAttr(prop, value) {
 console.log(getAttr('class', 'box'));
 ```
 
-### 12.英文字母汉子组成的字符串，用正则给引文单词前后加空格
+### 12.英文字母汉字组成的字符串，用正则给引文单词前后加空格
 1. 正则实现：
 ```javascript
 let str = 'dc测试aaas+!!dw';
-let reg = /\b[a-z]+\b/ig;
+let reg = /\b[a-z]+\b/ig; // \b匹配一个单词的边界
 str = str.replace(reg, value => {
     return ' ' + value + ' ';
 }).trim(); // String.prototype.trim/.trimLeft/.trimRight 去除字符串首尾空格
@@ -525,10 +567,10 @@ find和some的区别：
 var a = [1, 2, 3, 4, 5];
 var b = a.some(item => item%1 === 0 && item%item === 0); // 质数 true
 var c = a.some(item => item > 6); // false
-console.log(b);
+console.log(b); // true
 ```
-#### 检测某个值是否是数组：Array.isArray(arr); // ES6的方法
-比instanceOf靠谱
+#### 检测某个值是否是数组：`Array.isArray(arr); // ES6的方法`
+`Array.isArray(arr)`比`instanceof`靠谱
 
 ```javascript
 // 方法四：检测数组的每个元素是否还是数组，如果是数组就用...展开，直到所有的元素都不是数组，即不在嵌套
@@ -583,18 +625,18 @@ function toObject(arr){
 }
 // 3.把这个对象转成数组
 function key(obj){
-var arr=[];
-for(var attr in obj){
-    // 严谨：判断属性是否是obj对象自己的
-    if(obj.hasOwnProperty(attr)){
-    arr.push(attr);//将对象属性添加到数组中
+    var arr=[];
+    for(var attr in obj){
+        // 严谨：判断属性是否是obj对象自己的
+        if(obj.hasOwnProperty(attr)){
+            arr.push(attr);//将对象属性添加到数组中
+        }
     }
-}
-return arr;
+    return arr;
 }
 // 综合方法：将上面两个方法合并。去掉数组中的重复项
 function unique(newArr){
-return key(toObject(newArr));
+    return key(toObject(newArr));
 }
 // 调用去重的方法
 var arr=[1,1,2,3,2,5,4,5,6];
@@ -635,6 +677,7 @@ un = Array.from(new Set(arr)); // [1, 2, 4, 3, 5]
 
 ### 14.实现一个new
 参看MDN：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new
+
 `let dog = new Dog('欢欢');`
 new一个实例的过程：
 1. 像普通函数执行一样，形成一个私有的作用域；形参赋值；变量提升；
@@ -844,13 +887,14 @@ fn(); // TypeError: Assignment to constant variable.
 var b = 18;
 (
     function b() {
-        b = 20;
+        b = 20; // 匿名函数类似于创建常量一样，这个名字存储的值不能再被修改，如b是一个函数之后就不能再被改变，除非是另外声明一个变量也叫b，但这是两个不同作用域下的变量，所以不会相互影响
         console.log(b); // 函数，输出的是匿名函数b
     }
 )();
 console.log(b); // 18 输出的是全局变量b
 ```
 如果想要闭包中输出b=20可以怎么处理？
+方法一：
 ```javascript
 var b = 18;
 (
@@ -863,11 +907,12 @@ var b = 18;
 console.log(b); // 18 输出的是全局变量b
 ```
 
+方法二：
 ```javascript
 // 将输出的b改为形参第一种
 var b = 18;
 (
-    function b(b) {
+    function b(b) { // 传入一个形参，然后改变形参的值
         b = 20; // 相当于改变形参的值，也是将b私有化了，不是全局的
         console.log(b); // 20 里面的b一定需要是私有的，不能是全局的（将输出的b改为形参）
     }
@@ -875,6 +920,7 @@ var b = 18;
 console.log(b); // 18 输出的是全局变量b
 ```
 
+方法三：
 ```javascript
 // 将输出的b改为形参第二种
 var b = 18;
@@ -882,7 +928,7 @@ var b = 18;
     function b(b) {
         console.log(b); // 20 里面的b一定需要是私有的，不能是全局的（将输出的b改为形参）
     }
-)(20);
+)(20); // 直接实参传入需要输出的值
 console.log(b); // 18 输出的是全局变量b
 ```
 
@@ -895,26 +941,27 @@ if (a == 1 && a == 2 && a == 3) {
 }
 ```
 知识点铺垫：
-    ==进行比较的时候，如果左右两边数据类型不一样，则先转换为相同的数据类型，然后再进行比较
-    1. {} == {}两个对象进行比较，比较的是堆内存的地址 
-    2. null == undefined // true;null === undefined // false
-    3. NaN == NaN // false NaN和谁都不想等
-    4. [12] == '12' 对象(数组也是对象)和字符串比较，是把对象toString()转换为字符串后再进行比较的
+    `==` 进行比较的时候，如果左右两边数据类型不一样，则先转换为相同的数据类型，然后再进行比较
+    1. `{} == {}`两个对象进行比较，比较的是堆内存的地址 
+    2. `null == undefined // true`
+       `null === undefined // false`
+    3. `NaN == NaN // false` NaN和谁都不相等
+    4. `[12] == '12'` 对象(数组也是对象)和字符串比较，是把对象toString()转换为字符串后再进行比较的
     5. 剩余所有情况在进行比较的时候，都是转换为数字（前提：数据类型不一样）
         （1）对象转数字：先转换为字符串，然后再转换为数字；
         （2）字符串转数字：只要出现一个非数字字符，结果就是NaN;
-        （3）布尔转数字：true -> 1 false -> 0
-        （4）null转数字0；
-        （5）undefined转数字NaN;
-        （6）[12]==true => Number([12].toString()) == 1 // false [12]转换成字符串'12'，再转换成数字12
-        （7）[] == false => 0 == 0 // true []空数组转换成数字0
+        （3）布尔转数字：`true -> 1 false -> 0`
+        （4）null转数字0； `Number(null) => 0;`
+        （5）undefined转数字NaN; `Number(undefined) => NaN;`
+        （6）`[12]==true => Number([12].toString()) == 1` // false [12]转换成字符串'12'，再转换成数字12，true转成数字1，所以12 == 1为false
+        （7）[] == false => 0 == 0 // true []空数组转换成数字0 (`Number([]) = 0`)
         （8）[] == 1 => 0 == 1 // false
         （9）'1' == 1 => 1 == 1 // true
         （10）true == 2 => 1 == 2 // false
         ......
 
 解答：
-方法一：对象和数字比较：先把对象.toString()变为字符串，然后再转换为数字
+方法一：对象和数字比较：先调用`对象.toString()`变为字符串，然后再转换为数字，一次可以从改造对象的`toString()`入手，直接返回一个`number`类型的值
 ```javascript
 var a = {
     n: 0,
@@ -925,7 +972,7 @@ var a = {
     }
 };
 // a.toString(); // 此时调取的就不再是Object.prototype.toString了，调用的是自己私有的toString，即返回的是number类型的值；如果对象直接调用Object.prototype.toString会返回'[object Object]'
-// 每一次==比较的时候都会改变a的值，第一次用a判断a会变成1；第二次会变成2；第三次会变成3
+// 每一次 == 比较的时候都会改变a的值，第一次用a判断a会变成1；第二次会变成2；第三次会变成3
 if (a == 1 && a == 2 && a == 3) {
     console.log('yes');
 }
@@ -948,25 +995,27 @@ ES6中新增的一些方法：
     1. String.fromCharCode(n) <=> 'z'.charCodeAt() //  String.fromCharCode(122) <=> 'z'.charCodeAt()
     2. Array.from()
     3. Array.isArray()
-    4. Object.create(obj)
+    4. Object.create(obj); // 创建一个对象，并把该创建的对象的`_proto_`绑定到`obj`，new构造的核心
     5. Object.defineProperty()，vue的双向数据绑定就是用Object.defineProperty()实现的
-    ```
-    let obj = {};
-    Object.defineProperty(obj, 'name', {
-        get: function() {
-            console.log('haha');
-            return this.value; // this是当前操作的属性，this.value是当前操作属性的value值
-        },
-        set: function(value) {
-            console.log('hehe');
-            this.name = value;
-        }
-    });
-    obj.name = '羊羊'; // hehe
-    obj.name; // haha
-    ```
+
 ```javascript
-let n = 0;
+let obj = {};
+Object.defineProperty(obj, 'name', {
+    get: function() {
+        console.log('haha');
+        return this.value; // this是当前操作的属性，this.value是当前操作属性的value值
+    },
+    set: function(value) {
+        console.log('hehe');
+        this.name = value;
+    }
+});
+obj.name = '羊羊'; // hehe
+obj.name; // haha
+```
+
+```javascript
+// 调试还有点问题
 Object.defineProperty(window, a, {
     get: function() {
         // this就是window.a
@@ -1006,7 +1055,7 @@ Array.prototype.push = function @@(val) {
 
 ```javascript
 let obj = {
-    2: 3, // obj.push(1)之后obj[2] = 1，即改变了2: 3 => 2: 1
+    2: 3, // obj.push(1)之后obj[2] = 1，即改变了2: 3 => 2: 1，obj.length初始是2，执行push操作之后length变为3，obj[0], obj[1], obj[2] = 1，所以：2: 3 => 2: 1
     3: 4, // obj.push(2)之后obj[3] = 2，即改变了3: 4 => 3: 2
     length: 2, // obj.push(1)之后，在原来的基础上+1，即obj.length = 3，length: 3；obj.push(2)之后，在原来obj.push(1)基础上的length = 3加1，即length: 4
     push: Array.prototype.push
@@ -1014,7 +1063,7 @@ let obj = {
 // 过程：this: obj =>即 obj[obj.length] = 1 =>即 obj[2] = 1 =>即 obj.length = 3 (obj.length在原来2的基础上加1)
 obj.push(1);
 // 在obj.push(1)的基础上，过程：this: obj =>即 obj[obj.length] = 2 => 即 obj[3] = 2 =>即 obj.length = 4 (obj.length在原来3的基础上加1)
-obj.push(2);
+obj.push(2); // obj.length变为4，obj[0], obj[1], obj[2], obj[3]=2
 console.log(obj); // {2: 1, 3: 2, length: 4, push: Array.prototype.push}
 ```
 
@@ -1022,8 +1071,11 @@ console.log(obj); // {2: 1, 3: 2, length: 4, push: Array.prototype.push}
 
 ### 1.冒泡排序：for循环
 最好的时间复杂度：o(n^2)
+
 最差的时间复杂度：o(n^2)
-冒泡思想：让数组中的当前项和最后一项进行比较，如果当前项比后一项大，则两项交换位置（让大的考后）即可
+
+冒泡思想：让数组中的当前项和最后一项进行比较，如果当前项比后一项大，则两项交换位置（让大的靠后）即可
+
 ![](./imgs/bubble.jpg)
 
 代码实现：
@@ -1059,6 +1111,7 @@ console.log(arr); // [1, 2, 3, 4, 5, 9]
 ### 2.插入排序：for循环
 ![](./imgs/insert.png)
 思想：开辟一个新的数组，存放从要排序的数组中取到的值，然后再一个一个从未排序的数组中取值，再和新数组中的各个元素比较（可以从后往前（从新数组最后一项比较）也可以从前往后（从新数组第一项开始比较）），直到新元素插入到新数组中
+
 ```javascript
 function insertSort(arr) {
     // 1.准备一个新数组，用来存储从数组中取到的元素（类似抓到手里的牌），开始先取一个元素（类似先抓一张牌进来）
@@ -1093,6 +1146,29 @@ function insertSort(arr) {
 let arr = [2, 1, 5, 3, 9, 4];
 arr = insertSort(arr);
 console.log(arr); // [1, 2, 3, 4, 5, 9]
+```
+
+```javascript
+// 自己手写的：
+function insert(arr) {
+    let newArr = [];
+    newArr[0] = arr[0];
+    for (let i = 1; i < arr.length; i++) {
+        for(let j = newArr.length - 1; j >= 0; j--){
+            if(arr[i] >= newArr[j]){
+                newArr.splice(j+1, 0, arr[i]);
+                break;
+            }
+            if (j === 0) {
+                newArr.unshift(arr[i]);
+                break;
+            }
+        }
+    }
+    return newArr;
+}
+var resArr = insert([3, 2, 8, 1, 5, 4, 0, 9]);
+console.log(resArr); // 测试结果：[0, 1, 2, 3, 4, 5, 8, 9]
 ```
 
 ### 3.快速排序：递归
@@ -1144,7 +1220,7 @@ function quickSort(arr) {
     }
 
     // 1.找到数组的中间项，在原有的数组中把它移除
-    let midIndex = Math.flor(arr.length / 2);
+    let midIndex = Math.floor(arr.length / 2);
     // 基础知识细节：因为splice会返回被删除元素组成的数组，所以要通过取数组元素的下标获取到元素值，如：[1, 2, 3, 4, 5, 9].splice(2, 1)返回的是[3]，所以要通过[3][0]获取到3这个元素值
     let midValue = arr.splice(midIndex, 1)[0];
 
@@ -1164,6 +1240,40 @@ function quickSort(arr) {
 let arr = [2, 1, 5, 3, 9, 4];
 arr = quickSort(arr);
 console.log(arr); // [1, 2, 3, 4, 5, 9]
+```
+
+```javascript
+// 自己写的
+function quickSort(arr){
+    if(arr.length <= 1) {
+        return arr;
+    }
+    let midValue = null;
+    let midIndex = Math.floor(arr.length / 2);
+    let leftArr = [];
+    let rightArr = [];
+    midValue = arr.splice(midIndex, 1)[0];
+    for (let i = 0; i < arr.length; i++) {
+        if(midValue > arr[i]) {
+            leftArr.push(arr[i]);
+        }
+        else {
+            rightArr.push(arr[i]);
+        }
+    }
+    console.log('left:', leftArr, 'rightArr:', rightArr);
+    return quickSort(leftArr).concat(midValue, quickSort(rightArr));
+}
+
+var resArr = quickSort([3, 2, 8, 1, 5, 4, 0, 9]);
+console.log(resArr);
+// 测试结果
+// Script snippet %236:134 left: (5) [3, 2, 1, 4, 0] rightArr: (2) [8, 9]
+// Script snippet %236:134 left: [0] rightArr: (3) [3, 2, 4]
+// Script snippet %236:134 left: [] rightArr: (2) [3, 4]
+// Script snippet %236:134 left: [3] rightArr: []
+// Script snippet %236:134 left: [8] rightArr: []
+// Script snippet %236:139 (8) [0, 1, 2, 3, 4, 5, 8, 9]
 ```
 
 ### 4.
@@ -1187,7 +1297,7 @@ let arr = new Array(12).fill(null).map((item, index) => obj[index+1] || null);
 console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, null, null ]
 ```
 
-方法二：
+方法二：利用类数组转成真正的数组
 ```javascript
 let obj = {
     1: 222,
@@ -1207,7 +1317,7 @@ let obj = {
     5: 888
 }
 // Object.keys(obj): 获取obj中所有的属性名，以数组的方式返回
-// console.log(Object.keys(obj)); // ['1', '2', '3']
+// console.log(Object.keys(obj)); // ['1', '2', '5']
 let arr = new Array(12).fill(null);
 Object.key(obj).forEach(
     item => {
@@ -1218,10 +1328,12 @@ console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, 
 ```
 
 ### 5.
-题目：给的两个数组，写一个方法来计算它们的交集
+题目：给定两个数组，写一个方法来计算它们的交集
+```javascript
 let num1 = [1, 2, 2, 1];
 let num2 = [2, 2];
 // 输出结果[2]
+```
 
 ```javascript
 let arr = [];
@@ -1259,19 +1371,21 @@ num1.forEach((item, index) => {
 });
 ```
 
-
 ### 6.旋转数组
-![](./imgs/rotate.png)
+![](./imgs/rotatearr.png)
 
 方法一：
 ```javascript
 function rotate(k) {
+    // 当k为0或者k为数组长度，直接返回数组即可
     if (k <= 0 || k === this.length) {
         return this;
     }
+    // 当k值大于数组长度，取余s
     if (k > this.length) {
         k = k % this.length;
     }
+    // 截取后面k位元素，然后拼接0-k位置的元素
     return this.slice(-k).concat(this.slice(0, this.length - k));
 }
 
@@ -1318,7 +1432,9 @@ return this;
 
 ### 7.柯里化：闭包
 函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即将多参数的函数转换成单参数的形式
+
 柯里化 => 闭包：闭包的两大作用：保护；保存；(mm理解：保护内部的变量不被外层作用域访问到，保存外层作用域的变量和方法)
+
 柯里化：将多参数的函数转换成单参数的形式。
 
 简单的柯里化函数思想（参看MDN中的例子：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures）
