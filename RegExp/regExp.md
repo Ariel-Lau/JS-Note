@@ -191,6 +191,16 @@ console.log(reg4.test("2")); // true
 console.log(reg4.test("10")); // false
 ```
 
+* `ReExp.$1`、`RegExp.$2`...`RegExp.$9`，分别用于存储第一、第二......第九个匹配的捕获组。在 调用 `exec()`或 `test()`方法时，这些属性会被自动填充。
+```javascript
+var text = "this has been a short summer";
+var pattern = /(..)or(.)/g; // .表示除\n（换行符）及其它Unicode以外的任意字符，..表示有两个这样的字符，.表示有一个这样的字符
+if (pattern.test(text)){
+    alert(RegExp.$1);       //sh
+    alert(RegExp.$2);       //t
+}
+```
+
 ## 常用的正则表达式
 1. 验证是否为有效数字
 ```javascript

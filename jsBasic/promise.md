@@ -1,7 +1,7 @@
 # Promise
 内容摘自MDN和《ES6入门》
 # 语法
-```
+```javascript
 new Promise( function(resolve, reject) {...} /* executor */  );
 ```
 `Promise.length`：length属性，其值总是为 1 (构造器参数的数目)。
@@ -31,7 +31,7 @@ new Promise( function(resolve, reject) {...} /* executor */  );
 * 否则返回的promise将以此值完成。
 * 此函数将类promise对象的多层嵌套展平。
 * 需要注意的是，立即`resolve()`的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。
-```
+```javascript
 setTimeout(function () {
   console.log('three');
 }, 0);
@@ -94,7 +94,7 @@ async/await的目的是简化使用多个 promise 时的同步行为，并对一
 * 另外，如果 await 操作符后的表达式的值`不是一个 Promise，则返回该值本身`。
 
 * 任何一个await语句后面的 Promise 对象变为reject状态，那么整个async函数都会中断执行。
-```
+```javascript
 async function f() {
   await Promise.reject('出错了');
   await Promise.resolve('hello world'); // 不会执行
@@ -107,7 +107,7 @@ async function f() {
 方法一：
 可以将第一个await放在try...catch结构里面，这样不管这个异步操作是否成功，第二个await都会执行。因为第一个await的异常被catch了，所以不会阻塞后面的代码继续执行。
 
-```
+```javascript
 async function f() {
   try {
     await Promise.reject('出错了');
@@ -124,7 +124,7 @@ f()
 方法二：
 await后面的 Promise 对象再跟一个catch方法，处理前面可能出现的错误。
 
-```
+```javascript
 async function f() {
   await Promise.reject('出错了')
     .catch(e => console.log(e));
@@ -140,7 +140,7 @@ f()
 ## 错误处理
 难点是错误处理机制：
 async函数内部抛出错误，会导致返回的 Promise 对象变为reject状态。抛出的错误对象会被catch方法回调函数接收到。
-```
+```javascript
 async function f() {
   throw new Error('出错了');
 }
@@ -155,7 +155,7 @@ f().then(
 1. 最好把await命令放在`try...catch`代码块中
 2. 多个await命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
    同时触发的写法：
-   ```
+   ```javascript
    // 写法一
     let [foo, bar] = await Promise.all([getFoo(), getBar()]);
 
@@ -167,7 +167,7 @@ f().then(
    ```
 
    而不是以继发的形式写，如下：
-   ```
+   ```javascript
    let foo = await getFoo();
    let bar = await getBar();
    ```

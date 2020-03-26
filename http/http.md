@@ -123,10 +123,15 @@ HTTP协议是无状态的，http协议自身不对请求和响应之间的通信
 `http1.0`：每次发包都需要重新握手和挥手。
 **缺点：** 连接无法复用，导致每次请求都需要经历三次握手；
 `http1.1`：http请求头增加了`keep-alive`：保持连接(持续连接)。只要我们建立连接，那么在当前这个连接内只需要一次握手和一次撒手。即支持持久连接。
+`http1.1`：请求数据包的发送是串行。
 `http1.1`中默认是长连接。可以通过配置header头中的`Connection`字段来实现长连接和短连接：`keep-alive`：保持长连接、`close`：关闭长连接。request和response中都可以配置该http的header头字段。
 **缺点**：只能一次一次来，没有什么优先策略，只能排队，非常公平，长请求（大请求）和短请求（小请求）都一样公平排队，效率低。页面整体出来，但是白页到整个页面出来的时间很长。
 `http2.0`：多个请求可以同时在一个连接上并行执行，当某个请求任务耗时严重时，不会影响到其它连接的正常执行；同等条件下，小请求有抢资源的机会，不会一直排队被阻塞。页面一点一点加载出来。
+`http2.0`：可以同时多个请求并行发送或响应。
 `http3.0`：tcp（重试是客户端重试） ——> udp(解决不可靠是通过不断重试)	
 
+![](http://mmbiz.qpic.cn/mmbiz_png/cmOLumrNib1cfBOtIMQ6JfSibJdd6QkQriba5ygCTOOjIQH4wvoJS2iaFBseyEAUfvpJQThHmTjuGuaSspUo8xppiaA/0?wx_fmt=png)
+
 参考：
+https://www.cnblogs.com/heluan/p/8620312.html
 https://www.jianshu.com/p/52d86558ca57

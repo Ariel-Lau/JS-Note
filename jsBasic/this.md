@@ -70,3 +70,47 @@ console.log(o.b.g()); // 42
 
 ## 九、作为一个内联事件处理函数
 类似八：当代码被内联on-event 处理函数调用时，它的this指向监听器所在的DOM元素。
+
+## 以下摘自《高程》
+`this`对象是在运行时基于函数的执行环境绑定的：
+（1）在全局函数中，`this`等于`window`；
+（2）当函数被作为某个对象的方法调用时，`this`等于调用的对象；
+（3）匿名函数的执行环境具有全局性，因此匿名函数的`this`对象通常指向`window`
+
+每个函数在被调用时都会自动取得两个特殊变量：`this` 和 `arguments`，内部函数在搜索这两个变量时，只会搜索到其活动对象为止，因此永远不可能直接访问外部函数中的这两个变量。
+
+匿名函数的this：
+```javascript
+var name = "The Window";
+var object = {
+    name : "My Object",
+    getNameFunc : function(){
+        return function(){
+            return this.name;
+        };
+    }
+};
+console.log(object.getNameFunc()()); //"The Window"
+```
+匿名函数的this：
+```javascript
+var name = "The Window";
+setTimeout(function() {
+    console.log(this.name); // "The Window"
+} ,0);
+```
+
+如果要访问外部作用域的this可以将this保存之后，在内部函数访问。
+```javascript
+var name = "The Window";
+var object = {
+    name : "My Object",
+    getNameFunc : function(){
+        var that = this;
+        return function(){
+            return that.name;
+        };
+    }
+};
+console.log(object.getNameFunc()()); //"My Object"
+```

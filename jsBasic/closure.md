@@ -1,8 +1,18 @@
 # 闭包
 以下学习笔记摘自MDN：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures
-## 闭包是由函数以及创建该函数的词法环境组合而成。这个环境包含了这个闭包创建时所能访问的所有局部变量。
+
+## 基本概念
+### 作用域、作用域链
+作用域链的用途，是保证对执行环境有权访问的所有变量和函数的有序访问。
+作用域链的前端，始终都是当前执行的代码所在环境的变量对象。全局执行环境的变量对象始终都是作用域链中的最后一个对象。
+
+## 什么是闭包？
+1. 闭包是由函数以及创建该函数的词法环境组合而成。这个环境包含了这个闭包创建时所能访问的所有局部变量。
+2. 闭包是指有权访问另一个函数作用域中的变量的函数。——《高程》
+
+## 实现？在一个函数内部创建另一个函数就会形成闭包。
 示例1：
-```
+```javascript
 function makeFunc() {
     var name = "Mozilla";
     function displayName() {
@@ -18,7 +28,7 @@ myFunc(); // Mozilla
 `myFunc` 是执行 `makeFunc` 时创建的 `displayName` 函数实例的引用，而 `displayName` 实例仍可访问其词法作用域中的变量，即可以访问到 name 。由此，当 myFunc 被调用时，name 仍可被访问，其值 Mozilla 就被传递到console中
 
 示例2：
-```
+```javascript
 function makeAdder(x) {
   return function(y) {
     return x + y;
@@ -44,7 +54,7 @@ add5 和 add10 都是闭包。**它们共享相同的函数定义，但是保存
 私有方法不仅仅有利于限制对代码的访问：还提供了管理全局命名空间的强大能力，避免非核心的方法弄乱了代码的公共接口部分。
 下面的示例展现了如何使用闭包来定义公共函数，并令其可以访问私有函数和变量。这个方式也称为 **模块模式（module pattern）**：
 
-```
+```javascript
 var Counter = (function() {
   var privateCounter = 0;
   function changeBy(val) {
@@ -86,7 +96,7 @@ console.log(Counter.value()); /* logs 1 */
 例如，在创建新的对象或者类时，方法通常应该关联于对象的原型，而不是定义到对象的构造器中。原因是这将导致每次构造器被调用时，方法都会被重新赋值一次（也就是，每个对象的创建）。
 
 考虑以下示例：
-```
+```javascript
 function MyObject(name, message) {
   this.name = name.toString();
   this.message = message.toString();
@@ -100,9 +110,9 @@ function MyObject(name, message) {
 }
 ```
 
-在上面的代码中，我们并没有利用到闭包的好处，因此可以避免使用闭包。修改成如下：
+在上面的代码中，并没有利用到闭包的好处，因此可以避免使用闭包。修改成如下：
 
-```
+```javascript
 function MyObject(name, message) {
   this.name = name.toString();
   this.message = message.toString();
@@ -117,9 +127,9 @@ MyObject.prototype = {
 };
 ```
 
-但我们不建议重新定义原型。可改成如下例子：
+但不建议重新定义原型。可改成如下例子：
 
-```
+```javascript
 function MyObject(name, message) {
   this.name = name.toString();
   this.message = message.toString();
@@ -131,3 +141,179 @@ MyObject.prototype.getMessage = function() {
   return this.message;
 };
 ```
+
+## 闭包存在的问题：摘自《高程》
+1. 占用更多的内存：由于闭包会携带包含它的函数的作用域，因此会比其他函数占用更多的内存。
+```javascript
+function createFunctions(){
+    var result = new Array();
+    // var i变量相当于是在createFunctions函数作用域中的一个变量，类似：
+    // function createFunctions(){
+    //    var i=0;
+    //    for(i; i< 10; i++){
+    //      ..........
+    //    }
+    // }
+    for (var i=0; i < 10; i++){
+      result[i] = function(){
+        return i;
+      };
+    }
+    return result;
+}
+console.log(createFunctions()[0]()); // 10
+console.log(createFunctions()[1]()); // 10
+console.log(createFunctions()[2]()); // 10
+console.log(createFunctions()[3]()); // 10
+console.log(createFunctions()[4]()); // 10
+........
+```
+对以上代码，每个函数的作用域链中都保存着`createFunctions()`函数的活动对象，所以它们引用的都是同一个变量 i。当`createFunctions()`函数返回后，变量 i 的值是 10，此时每个函数都引用着保存变量 i 的同一个变量 对象，所以在每个函数内部 i 的值都是 10
+
+为什么输出10，参考如下：
+```javascript
+// 所以最后会输出10个10，因为在最后一轮循环结束后i=10，开始执行10个异步console
+// 重点：因为i是全局变量，所以每轮循环都会覆盖上一次的i值，故最后的i是10，然后10个异步调用输出10个10
+// 为什么循环结束之后i变成10，因为最后一轮循环是跳出循环，当i=9这轮循环结束后，i变成10，然后不满足条件，跳出循环，所以最后全局变量var i为10
+for (var i = 0; i < 10; i++) {
+    setTimeout(() => {
+        // 执行异步的时候，输出的i不是异步的私有变量，会继续往外层找，找到var全局的i，即循环结束后变成10的i
+        console.log(i);
+    }, 1000);
+}
+// 10， 10， 10......
+```
+
+如果像让每个函数返回各自对应的索引??
+解决：定义一个立即执行的匿名函数，并将索引i的值传给匿名函数，在调用每个匿名函数时传入的都是不同的i，匿名函数内部return的函数形成的闭包会保存每次匿名函数执行之后传入的索引i即参数num
+```javascript
+function createFunctions(){
+    var result = new Array();
+    for (var i=0; i < 10; i++){
+      result[i] = function(num) {
+        return function(){
+          return num;
+        };
+      }(i)
+    }
+    return result;
+}
+console.log(createFunctions()[0]()); // 0
+console.log(createFunctions()[1]()); // 1
+console.log(createFunctions()[2]()); // 2
+console.log(createFunctions()[3]()); // 3
+console.log(createFunctions()[4]()); // 4
+........
+```
+
+2. 内存泄漏
+（1） 如果闭包的作用域链中保存着一个HTML 元素，那么就意味着该元素将无法被销毁
+```javascript
+function assignHandler(){
+  var element = document.getElementById("someElement");
+  element.onclick = function(){
+      console.log(element.id);
+  };
+}
+```
+以上代码创建了一个作为`element`元素事件处理程序的闭包，而这个闭包又创建了一个循环引用。由于匿名函数保存了一个对`assignHandler()`的活动对象的引用，因此就会导致无法减少`element`的引用数。只要匿名函数存在，`element`的引用数至少也是1，因此它所 占用的内存就永远不会被回收。
+
+解决：可以通过先保存`element.id`为一个变量（即保存为一个副本），然后闭包中引用该变量（消除循环引用），使用完之后强制将`ele`置空（置为`null`），注意这里不是直接将`id`变量置为空。
+必须要记住：闭包会引用 包含函数 的整个活动对象，而其中包含着 `element`。即使闭包不直接引用 `element`，包含函数的活动对象中也仍然会保存一个引用。因此，有必要把`element`变量设置为`null`。这样就能够解除对 `DOM` 对象的引用，顺利地减少其引用数，确保正常回收其占用的内存。
+```javascript
+function assignHandler(){
+  var element = document.getElementById("someElement"); // 会导致对dom对象的循环引用
+  var id = element.id;
+  element.onclick = function(){
+      console.log(id);
+  };
+  element = null;
+}
+```
+
+3. 多层嵌套，变量或函数的查询速度变慢。
+
+## 扩展1：匿名函数模拟块级作用域（私有作用域）：js利用表示执行的小括号()来模拟块级作用域的概念；ES6的`let`和`const`关键字也可以产生块级作用域
+```javascript
+(function(){ 
+  //这里是块级作用域
+})();
+```
+
+用`()`将函数声明转成函数表达式：
+```javascript
+(function(){ 
+  
+})
+```
+
+```javascript
+function outputNumbers(count){
+    (function () {
+        for (var i=0; i < count; i++){
+            alert(i);
+}
+})();
+console.log(i); // 导致一个错误!
+}
+```
+在 for 循环外部插入了一个私有作用域。在匿名函数中定义的任何变量，都会在执行结束时被销毁。因此，变量 i 只能在循环中使用，使用后即被销毁。
+而在私有作用域中能够访问变量 count，是因为这个匿名函数是一个闭包，它能够访问包含作用域中的 所有变量。
+
+<font color="red">tips：</font>
+（1）用小括号()来模拟块级作用域技术经常在全局作用域中被用在函数外部，从而限制向全局作用域中添加过多的变量和函数。
+（2）webpack打包压缩之后的文件内容就被放在一个块级作用域中，用小括号()包裹住。
+（3）这种做法可以减少闭包占用的内存问题，因为没有指向匿名函数的引用。只要函 数执行完毕，就可以立即销毁其作用域链了。
+
+```javascript
+function createFunctions(){
+    var result = new Array();
+    for (var i=0; i < 10; i++){
+      result[i] = function(){
+        return i;
+      };
+    }
+    return result;
+}
+```
+以上for循环中定义的var变量i，相当于是在createFunctions函数作用域中的一个变量，类似：
+```javascript
+function createFunctions(){
+    var i=0;
+    for(i; i< 10; i++){
+      ..........
+    }
+}
+```
+使用 var 声明的变量会自动被添加到最接近的环境中。在函数内部，最接近的环境就是函数的局部 环境。
+
+## 扩展2：垃圾收集
+1. 标记清除（mark and sweep）
+当变量进入环境(例如，在函数中声明一个变量)时，就将这个变量标记为<font color="red">“进入环境”</font>。
+从逻辑上讲，永远不能释放进入环境的变量所占用的内存，因为只要执行流进入相应的环境，就可能会用到它们。
+而当变量离开环境时，则将其 标记为<font color="red">“离开环境”</font>。
+
+```javascript
+function test () {
+  var a = 10; // 被使用
+  var b = 20;  // 被使用
+}
+test(); // 执行完毕之后，a、b又被标记了一次：离开环境。js垃圾回收机制隔一段时间检查一下有哪些变量或者方法被标记为“离开环境”，然后将这些变量或函数回收
+```
+
+2. 引用计数
+跟踪记录每个值被引用的次数。
+主要思想：当声明了一个变量并将一个引用类型值赋给该变量时，则这个值的引用次数就是 1。 如果同一个值又被赋给另一个变量，则该值的引用次数加 1。相反，如果包含对这个值引用的变量又取得了另外一个值，则这个值的引用次数减 1。当这个值的引用次数变成 0 时，则说明没有办法再访问这个值了，因而就可以将其占用的内存空间回收回来。这样，当垃圾收集器下次再运行时，它就会释放那 些引用次数为零的值所占用的内存。
+
+```javascript
+function test2 () {
+  var a = 10; // count=1
+  var b = 20;
+  var c;
+  c = a; // count=2，变量a被变量c引用
+  a = 50; // 变量a被重新赋值，count--，count=1;
+}
+test2();// 函数执行完毕，当变量或者函数的引用计数为0时，js垃圾回收机制轮询发现引用计数为0，将其回收。
+```
+
+**<font color="red">该方法存在的问题、缺点：</font>**在变量循环引用时变量的引用数永远不会被标记为0，也就是永远不会被垃圾回收。所以在循环引用中最好能够在用完变量之后将其置为null或置空处理，这样就不会继续占用内存。
