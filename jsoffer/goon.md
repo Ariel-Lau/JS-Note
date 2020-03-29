@@ -371,7 +371,7 @@ obj[b]='b' => obj['[object Object]'] = 'b';
 ```
 
 ```javascript
-example4: 构造函数、普通函数、原型
+// example4: 构造函数、普通函数、原型
 function Foo() {
     Foo.a = function() {
         console.log(1);
@@ -603,7 +603,13 @@ arr = arr.ownFlat();
 ```
 
 #### 题目扩展mm：
-<font color="red">1.数组去重：</font>
+<font color="red">1.字符串去重</font>
+
+```javascript
+[...new Set('ababbc')].join(''); // 'abc'
+```
+
+<font color="red">2.数组去重：</font>
 
 方法一：利用JS对象的特性，去除数组中的重复项
 js对象的特性：`在js对象中 key 是永远不会重复的`
@@ -673,6 +679,15 @@ var arr = [1,2,1,4,3,2,5,3];
 var un = [...new Set(arr)]; // [1, 2, 4, 3, 5]
 // 或者用Array.from展开set
 un = Array.from(new Set(arr)); // [1, 2, 4, 3, 5]
+```
+
+方法4：用reduce将二维数组转化成一维数组
+  注意：这种方式只能将二维数组转成一维数组，不能将三维、四维等更深层次的数组转为一维数组
+
+```javascript
+// 传入[]作为第一次调用回调函数时的第一个参数的值
+[[0, 1], [2, 3], [4, 5]].reduce((a, b) => a.concat(b), []);
+// [0, 1, 2, 3, 4, 5]
 ```
 
 ### 14.实现一个new
@@ -768,6 +783,24 @@ for (var i = 0; i < 10; i++) {
 ```
 
 **其它类似题目扩散mm**：如果是下面这个写法的话不会输出10, 10, 10, 10....，因为是直接同步输出，而不是异步输出，每次输出的都是当前循环轮的i值，而不会被下次循环的i更新值，而setTimeout异步的话是会改变上一轮的全局变量i的值。
+
+```javascript
+var arr = [1, 2, 3, 4, 5];
+var i = 0;
+var len = arr.length;
+var a;
+for (i = 0; i < len; i++) {
+    console.log(i); // 0 1 2 3 4
+}
+
+var arr = [1, 2, 3, 4, 5];
+var i = 0;
+var len = arr.length;
+var a;
+for (i = 0; i < len; i++) {
+  setTimeout(() => { console.log(i)}, 0); // 5 5 5 5 5 
+}
+```
 
 ```javascript
 for (var i = 0; i < 10; i++) {
@@ -1079,217 +1112,7 @@ obj.push(1);
 obj.push(2); // obj.length变为4，obj[0], obj[1], obj[2], obj[3]=2
 console.log(obj); // {2: 1, 3: 2, length: 4, push: Array.prototype.push}
 ```
-
-## 算法开始表演
-
-### 1.冒泡排序：for循环
-最好的时间复杂度：o(n^2)
-
-最差的时间复杂度：o(n^2)
-
-冒泡思想：让数组中的当前项和最后一项进行比较，如果当前项比后一项大，则两项交换位置（让大的靠后）即可
-
-![](./imgs/bubble.jpg)
-
-代码实现：
-```javascript
-function bubble(arr) {
-    let tmp = null;
-    // 外层循环i控制比较的轮数
-    for (let i = 0; i < arr.length - 1; i++) {
-        // i = 0 第一轮：一个都没有放到排序好的数组里
-        // i = 1 第二轮：经过第一轮，排序好的数组已经在数组里放了1个值
-        // i = 2 第三轮：经过第一、二轮，排序好的数组已经在数组里放了2个值
-        // ....
-        // 里层循环控制每一轮比较的次数j
-        // arr.length - 1 - i 每循环一轮之后剩余要比较的元素个数就少一个，所以经过i轮循环后需要比较的元素就只有arr.length - 1 - i个
-        for (let j = 0; j < arr.length - 1 - i; j++) {
-            if (arr[j] > arr[j+1]) {
-                // 当前项大于后一项
-                tmp = arr[j];
-                arr[j] = arr[j+1];
-                arr[j+1] = tmp;
-            }
-        }
-    }
-    return arr;
-}
-
-// 测试结果
-let arr = [2, 1, 5, 3, 9, 4];
-arr = bubble(arr);
-console.log(arr); // [1, 2, 3, 4, 5, 9]
-```
-
-### 2.插入排序：for循环
-![](./imgs/insert.png)
-思想：开辟一个新的数组，存放从要排序的数组中取到的值，然后再一个一个从未排序的数组中取值，再和新数组中的各个元素比较（可以从后往前（从新数组最后一项比较）也可以从前往后（从新数组第一项开始比较）），直到新元素插入到新数组中
-
-```javascript
-function insertSort(arr) {
-    // 1.准备一个新数组，用来存储从数组中取到的元素（类似抓到手里的牌），开始先取一个元素（类似先抓一张牌进来）
-    let newArr = [];
-    // 先存放第一个元素到新数组
-    newArr.push(arr[0]);
-    // 2.从第二项开始依次取元素（类似依次抓牌），一直到所有的元素都取完（一直到所有的牌都抓光）
-    for (let i = 0; i < arr.length; i++) {
-        // a是新取的元素（新抓的牌）
-        let a = arr[i];
-        // 和newArr中的元素依次比较（和newArr手里的牌依次比较（从后往前比较））
-        for (let j = newArr.length - 1; j > 0; j--) {
-            // 每一次都要比较newArr中的元素（手里的牌）
-            let b = newArr[j];
-            // 如果当前新元素a（新牌a）比要比较的元素b（牌b）大，则把a放到b的后面
-            if (a > b) {
-                // 把a放到b的后面
-                newArr.splice(j+1, 0, a);
-                // 结束此轮新牌和手里的牌比较
-                break;
-            }
-            // 已经比较到第一项，把新牌放到手中最前面即可
-            // 如果新牌已经和手里的牌比较到了第一项，则直接把新牌放到手里的最前面即可
-            if (j === 0) {
-                newArr.unshift(a);
-            }
-        }
-    }
-    return newArr;
-}
-// 测试结果
-let arr = [2, 1, 5, 3, 9, 4];
-arr = insertSort(arr);
-console.log(arr); // [1, 2, 3, 4, 5, 9]
-```
-
-```javascript
-// 自己手写的：
-function insert(arr) {
-    let newArr = [];
-    newArr[0] = arr[0];
-    for (let i = 1; i < arr.length; i++) {
-        for(let j = newArr.length - 1; j >= 0; j--){
-            if(arr[i] >= newArr[j]){
-                newArr.splice(j+1, 0, arr[i]);
-                break;
-            }
-            if (j === 0) {
-                newArr.unshift(arr[i]);
-                break;
-            }
-        }
-    }
-    return newArr;
-}
-var resArr = insert([3, 2, 8, 1, 5, 4, 0, 9]);
-console.log(resArr); // 测试结果：[0, 1, 2, 3, 4, 5, 8, 9]
-```
-
-### 3.快速排序：递归
-思路：
-
-![](./imgs/quick.png)
-
-基础知识：
-递归：函数执行的时候自己调用自己
-```javascript
-function fn() {
-    fn(); // Uncaught RangeError: Maximum call stack size exceeded 这种死递归会导致栈溢出
-}
-fn();
-```
-
-```javascript
-function fn() {
-    setTimeout(fn, 0); // 这种看似死递归的方法不会导致栈溢出错误
-}
-fn();
-```
-
-```javascript
-// 递归实现1-10累加的和
-function sum(n) {
-    if(n > 10) {
-        // 递归的出口
-        return 0;
-    }
-    return n + sum(n + 1);
-    // return 1 + sum(2)
-    // return 1 + 2 + sum(3)
-    // return 1 + 2 + 3 + sum(4)
-    // ......
-    // return 1 + 2 + 3 + 4 + ... + 10 + sum(11)
-    // return 1 + 2 + 3 + 4 + ... + 10 + 0
-}
-let total = sum(1);
-console.log(total); // 55
-```
-
-快排的代码实现
-```javascript
-function quickSort(arr) {
-    // 4.结束递归，找到递归的出口（当arr中小于等于1项时，则不用再继续处理）
-    if (arr.length <= 1) {
-        return arr;
-    }
-
-    // 1.找到数组的中间项，在原有的数组中把它移除
-    let midIndex = Math.floor(arr.length / 2);
-    // 基础知识细节：因为splice会返回被删除元素组成的数组，所以要通过取数组元素的下标获取到元素值，如：[1, 2, 3, 4, 5, 9].splice(2, 1)返回的是[3]，所以要通过[3][0]获取到3这个元素值
-    let midValue = arr.splice(midIndex, 1)[0];
-
-    // 2.准备左右两个数组，循环剩下数组中的每一项，比当前项小的放到左边数组中，反之放到右边数组中
-    let arrLeft = [];
-    let arrRight = [];
-    for(let i = 0; i < arr.length - 1; i ++) {
-        arr[i] < midValue ? arrLeft.push(arr[i]) : arrRight.push(arr[i]);
-    }
-
-    // 3.递归方式让左右两边的数组持续这样处理，一直到左右两边都排好序为止（最后让左边 + 中间值 + 右边拼接成为最后的结果）
-    // concat可以将值连接到数组，参考mdn：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
-    return quickSort(arrLeft).concat(midValue, quickSort(arrRight));
-
-}
-// 测试结果
-let arr = [2, 1, 5, 3, 9, 4];
-arr = quickSort(arr);
-console.log(arr); // [1, 2, 3, 4, 5, 9]
-```
-
-```javascript
-// 自己写的
-function quickSort(arr){
-    if(arr.length <= 1) {
-        return arr;
-    }
-    let midValue = null;
-    let midIndex = Math.floor(arr.length / 2);
-    let leftArr = [];
-    let rightArr = [];
-    midValue = arr.splice(midIndex, 1)[0];
-    for (let i = 0; i < arr.length; i++) {
-        if(midValue > arr[i]) {
-            leftArr.push(arr[i]);
-        }
-        else {
-            rightArr.push(arr[i]);
-        }
-    }
-    console.log('left:', leftArr, 'rightArr:', rightArr);
-    return quickSort(leftArr).concat(midValue, quickSort(rightArr));
-}
-
-var resArr = quickSort([3, 2, 8, 1, 5, 4, 0, 9]);
-console.log(resArr);
-// 测试结果
-// Script snippet %236:134 left: (5) [3, 2, 1, 4, 0] rightArr: (2) [8, 9]
-// Script snippet %236:134 left: [0] rightArr: (3) [3, 2, 4]
-// Script snippet %236:134 left: [] rightArr: (2) [3, 4]
-// Script snippet %236:134 left: [3] rightArr: []
-// Script snippet %236:134 left: [8] rightArr: []
-// Script snippet %236:139 (8) [0, 1, 2, 3, 4, 5, 8, 9]
-```
-
-### 4.
+### 20.
 题目：
 某公司1到12月份的销售额存在一个对象里面，如下：
 {
@@ -1340,7 +1163,7 @@ Object.key(obj).forEach(
 console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, null, null ]
 ```
 
-### 5.
+### 21.
 题目：给定两个数组，写一个方法来计算它们的交集
 ```javascript
 let num1 = [1, 2, 2, 1];
@@ -1384,7 +1207,7 @@ num1.forEach((item, index) => {
 });
 ```
 
-### 6.旋转数组
+### 22.旋转数组
 ![](./imgs/rotatearr.png)
 
 方法一：
@@ -1443,8 +1266,8 @@ return this;
 >
 ```
 
-### 7.柯里化：闭包
-函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即将多参数的函数转换成单参数的形式
+### 23.柯里化：闭包
+函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即`将多参数的函数转换成单参数的形式`
 
 柯里化 => 闭包：闭包的两大作用：保护；保存；(mm理解：保护内部的变量不被外层作用域访问到，保存外层作用域的变量和方法)
 
@@ -1512,6 +1335,18 @@ let obj = {
 document.body.onclick = fn.myBind(obj, 100, 200);
 ```
 
+柯里化函数
+```javascript
+function curry(fn) {
+    // 获取外部函数的参数
+    let outerArgs = Array.prototype.call(arguments, 1);
+    return function() {
+        // 将外部函数和内部函数结合传参
+        fn.apply(null, outerArgs.concat(...args));
+    }
+}
+```
+
 题目：
 
 ![](./imgs/currying1.jpg)
@@ -1569,4 +1404,50 @@ console.log(add(1,2)(3,4,5));
 console.log(add(1,2)(3,4)(5));
 console.log(add(1,2)(3)(4)(5));
 console.log(add(1)(2)(3)(4)(5));
+```
+
+### 24.输出下列结果
+```javascript
+const obj = {
+    a: 100
+}
+const obj1 = obj;
+let a1 = obj.a;
+obj1.a = 200;
+console.log(obj.a); // 200
+console.log(a1); // 100 因为a1先被赋值obj.a 100，然后才改变obj1.a的值
+a1 = 300;
+console.log(obj.a); // 200
+console.log(obj1.a); // 200
+```
+
+### 25.按属性对object分类
+用数组的`reduce`方法，参考链接：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+```javascript
+var people = [
+  { name: 'Alice', age: 21 },
+  { name: 'Max', age: 20 },
+  { name: 'Jane', age: 20 }
+];
+
+function groupBy(objectArray, property) {
+  return objectArray.reduce(function (acc, obj) {
+    var key = obj[property];
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(obj);
+    return acc;
+  }, {});
+}
+
+var groupedPeople = groupBy(people, 'age');
+// groupedPeople is:
+// { 
+//   20: [
+//     { name: 'Max', age: 20 }, 
+//     { name: 'Jane', age: 20 }
+//   ], 
+//   21: [{ name: 'Alice', age: 21 }] 
+// }
 ```

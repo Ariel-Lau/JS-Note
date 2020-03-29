@@ -152,6 +152,7 @@ typeof mapper
 mapper.size
 2
 ```
+### json()：https://developer.mozilla.org/zh-CN/docs/Web/API/Body/json
 
 
 # css

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>图片的延迟加载（懒加载）</title>
+    <head>
+    <body>
+        <!-- lazyload属性不能少-->
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+        <img src="" class="lazy-load" lazyload="true" data-url='./imgs/1.jpg'>
+    </body>
+    <style>
+        .lazy-load {
+            background: #666;
+            display: block;
+            margin-bottom: 50px;
+            /* 一定记得设置图片的高度 */
+            height: 200px;
+        }
+    </style>
+    <script>
+        function lazyLoad() {
+            // let imgNodes = document.querySelectorAll('.lazy-load');
+            let imgNodes = document.querySelectorAll('img[lazyload][data-url]');
+            // 获取视口的高度
+            let viewH = document.documentElement.clientHeight;
+            [].slice.call(imgNodes).forEach(ele => {
+                if (!ele.dataset.url) {
+                    return;
+                }
+
+                let eleH = ele.getBoundingClientRect();
+                if (eleH.top <= viewH) {
+                    let imgUrl = ele.dataset.url;
+                    // 如果直接设置ele.src = imgUrl;src的地址会是和data-url一样的相对路径
+                    // ele.src = imgUrl;
+                    let img = new Image();
+                    img.src = imgUrl;
+                    img.onload = function () {
+                        // 用img.src赋值给ele.src可以生成绝对路径
+                        ele.src = img.src;
+                        console.log('图片懒加载成功！');
+                    };
+                    ele.removeAttribute('lazyload');
+                    ele.removeAttribute('data-url');
+                }
+            });
+        }
+        lazyLoad();
+        // 这里可以添加防抖和节流
+        document.addEventListener('scroll', lazyLoad);
+    </script>
+<html>

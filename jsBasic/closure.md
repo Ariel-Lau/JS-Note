@@ -11,7 +11,85 @@
 2. 闭包是指有权访问另一个函数作用域中的变量的函数。——《高程》
 
 ## 实现？在一个函数内部创建另一个函数就会形成闭包。
-示例1：
+**千万要注意和明确的一点（非常容易混淆和迷惑的考点，切记闭包的本质是函数内部创建另一个函数才会形成闭包，其它的都不是闭包）：**闭包是在一个函数内部再创建了另一个函数才会形成闭包，如果在函数A外部创建的函数B，然后在函数A内部调用、返回函数B、返回函数B的调用结果，都不是闭包。
+```javascript
+var a = 100;
+function closure() {
+  var a = 200;
+  return function() {
+    console.log(a);
+  }
+}
+var fn = closure();
+fn(); // 200 闭包会保存外层作用域中的变量
+```
+
+注意，如果是以下写法也是闭包，只要在函数中定义了另一个函数就会形成闭包
+```javascript
+var x = 10;
+function a(y) {
+    var x = 20;
+    function b(y) {
+        return x + y;
+    }
+    return b;
+}
+
+a(30)(90); // 20 + 90 = 110
+a()(70); // 20 + 70 = 90
+// 执行a()函数无论是否传了参数都没关系，直接返回的都是b函数，且b函数保存了定义时所在的作用域环境，可以访问该外层作用域中的变量
+```
+
+对比非闭包
+```javascript
+var a = 100;
+function fn(f) {
+  var a = 200;
+  f(); // 注意函数内部的是函数调用还是定义一个函数直接返回一个函数？这关系到是否是闭包
+}
+function f() {
+  console.log(a);
+}
+fn(f); // 100 因为f函数是定义在全局的，调用时输出的a也是全局的。
+```
+
+对比非闭包的另一种写法：
+```javascript
+var x = 10;
+function a(y) {
+    var x = 20;
+    // 以下写法等价于
+    // let res = b(y);
+    // return res;
+    return b(y); // 注意这里return的是一个函数调用结果，不是一个函数，return出的应该是 x + 20,此时全局调用外层的x为10
+}
+
+// 函数b定义在全局，调用的时候也是在全局调用
+function b(y) {
+    return x + y;
+}
+
+a(20); // 30
+```
+
+再看下这种写法：非闭包
+```javascript
+var x = 10;
+function a(y) {
+    var x = 20;
+    // 以下写法直接返回一个在函数a外部定义的函数b
+    return b;
+}
+
+function b(y) {
+  return x + y;
+}
+a()(60); // 60 + 10(全局变量) = 70，a()返回一个函数b，调用时是window.b(60)，也就是return x + y => return 10 + 60
+a(50)(80); // 80 + 10(全局变量) = 90，a(50)返回一个函数b，调用时是window.b(80)，也就是return x + y => return 10 + 80。无论函数a调用时是否传了参数，返回的都是函数b，是否传参数没有关系
+// 执行a()函数无论是否传了参数都没关系，直接返回的都是b函数，且b函数保存了定义时所在的作用域环境，可以访问该外层作用域中的变量
+```
+
+示例1：闭包
 ```javascript
 function makeFunc() {
     var name = "Mozilla";
@@ -27,7 +105,7 @@ myFunc(); // Mozilla
 
 `myFunc` 是执行 `makeFunc` 时创建的 `displayName` 函数实例的引用，而 `displayName` 实例仍可访问其词法作用域中的变量，即可以访问到 name 。由此，当 myFunc 被调用时，name 仍可被访问，其值 Mozilla 就被传递到console中
 
-示例2：
+示例2：闭包
 ```javascript
 function makeAdder(x) {
   return function(y) {

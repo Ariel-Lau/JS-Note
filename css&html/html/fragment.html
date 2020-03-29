@@ -6,7 +6,22 @@
     </head>
     <body>
         <ul id="frag"></ul>
+        <div class="waterfalls">
+            <ul id="waterfalls-col1">
+                <li id="do">do</li>
+                <li id="go">go</li>
+                <li id="say">say</li>
+            </ul>
+            <ul id="waterfalls-col2">
+                <li id="do">do</li>
+            </ul>
+            <ul id="waterfalls-col3">
+                <li id="do">do</li>
+                <li id="go">go</li>
+            </ul>
+        </div>
         <script>
+        // 文档碎片
         var test = document.getElementById('frag');
         var lists = ['orange', 'red', 'blue'];
         var frag = document.createDocumentFragment();
@@ -16,6 +31,65 @@
             frag.appendChild(ele);
         });
         test.appendChild(frag);
+
+        // 事件代理/事件委托，在更高级的元素上面绑定事件。具备以下优点：
+        // document 对象很快就可以访问，而且可以在页面生命周期的任何时点上为它添加事件处理程序；
+        // 在页面中设置事件处理程序所需的时间更少。只添加一个事件处理程序所需的 DOM 引用更少，所花的时间也更少。
+        // 整个页面占用的内存空间更少，能够提升整体性能。
+        var waterFalls = document.querySelector('#waterfalls-col1');
+        waterFalls.addEventListener('click', function (e) {
+            console.log(e.target.id);
+        });
+        
+        // ===========================实现瀑布流==========================
+        // 获取瀑布流的所有元素
+        var allFallEles = document.querySelectorAll('ul');
+        // 计算每列瀑布流的高度，获取高度最短的瀑布流
+        var allFallElesH = Array.from(allFallEles).map(ele => ele.offsetHeight);
+        // 获取最小高度
+        var minHeight = Math.min.apply(null, allFallElesH);
+        // 获取高度最小索引函数
+        function getMinHIndex(arr, value) {
+            return new Promise(reslove => {
+                let minIndex = 0;
+                for (let i in arr) {
+                    if (arr[i] === value) {
+                        minIndex = i;
+                        reslove(minIndex);
+                    }
+                }
+            });
+        }
+
+        // 创建元素，如果上拉加载请求不同数据需要单独再考虑什么时候请求，什么时候开始渲染等问题，参考：https://juejin.im/post/5e05acf0f265da33d158a1b1#heading-11
+        // 以下只是简单的意思
+        function createdImg(num, minIndex) {
+            for (let i = 0; i < num; i++) {
+                var imgEle = document.createElement('img');
+                imgEle.src = `${i}.jpg`;
+                console.log('imgEle.src:', imgEle.src);
+                var liEle = document.createElement('li');
+                liEle.appendChild(imgEle);
+                allFallEles[minIndex].appendChild(liEle);
+            }
+        }
+
+        // 通过最小高度,得到第几列高度最小
+        getMinHIndex(allFallElesH, minHeight).then(minIndex => {
+            console.log('最小高度：', minIndex); // 获取的最小高度索引是2
+            // 渲染加载逻辑
+            createdImg(3, minIndex);
+        });
         </script>
     </body>
+    <style>
+        .waterfalls {
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .waterfalls ul li {
+            list-style-type: none;
+        }
+    </style>
 </html>

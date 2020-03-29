@@ -14,11 +14,15 @@
         <div id="some-top">4.2 测试锚点回到特定位置</div>
         <p>2. 实现一个梯形（利用border实现），width: 100px; height:0;</p>
         <div class="trapezoid"></div>
-        <p>3. 实现一个上三角形</p>
+        <p>3. 实现一个上三角形(实现的是一个等腰三角形)</p>
         <p>方法一：利用border实现，width\height：0</p>
         <div class="triggle-1"></div>
         <p>方法二：利用两个border拼成一个三角形，width:0;height:0,transform:rotate(-40deg)</p>
         <div class="triggle-2"></div>
+        <p>实现一个直角三角形</p>
+        <div class="right-triggle"></div>
+        <p>实现一个等边三角形，三角形的角度可以通过控制border的宽度来控制</p>
+        <div class="equal-triggle"></div>
         <p>实现利用无序列表嵌套无序列表实现三级菜单</p>
         <div>
             <ul id="nav">
@@ -59,6 +63,18 @@
             <div class="float-3">这是第三个浮动元素</div>
             <!-- <p class="clear-float"></p> -->
         </div>
+        <!-- flex布局 -->
+        <div class="wrap">
+            <div class="first-box">1</div>
+            <div class="second-box">2</div>
+            <div class="third-box">3</div>
+        </div>
+        <!-- 普通元素固定宽高比 -->
+        <div class="four-three-wrap">
+            <div class="four-three">宽高4：3自适应</div>
+        </div>
+        <!-- 实现图片无限循环、持续动画 -->
+        <img class="circle" src="./animation.jpg" width="100" height="100"/>
     </body>
     <style>
         body {
@@ -95,6 +111,27 @@
             border: 100px solid;
             border-color: red red transparent transparent;
             transform: rotate(-45deg);
+        }
+        
+        .right-triggle {
+            height: 0;
+            width: 0;
+            border-color: transparent transparent #999999 transparent;
+            /*border-top-width设置为0，为了让透明的顶部的三角形不占据空间*/
+            border-style: solid;
+            /* 等腰直角三角形，下左的border高度一样，右border高度为0，上border是否有值没有关系 */
+            border-width: 0 0 50px 50px;
+        }
+        
+        /* 等边三角形 */
+        .equal-triggle {
+            height: 0;
+            width: 0;
+            border-color: transparent transparent #999999 transparent;
+            /*border-top-width设置为0，为了让透明的顶部的三角形不占据空间*/
+            border-style: solid;
+            /* 等边三角形，左右的border高度一样，下border的宽度根据左右border的勾股定理计算得到 */
+            border-width: 0 50px 86.6px 50px;
         }
 
         /* id选择器 子选择器 */
@@ -165,6 +202,70 @@
         /* (5) 在浮动元素后面添加一个空标签，设置clear:both;*/
         .clear-float {
             clear: both;
+        }
+        /* ============ */
+        .wrap {
+            margin-top: 20px;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+        }
+        .first-box {
+            align-self: flex-start;
+        }
+        .second-box {
+            align-self: center;
+        }
+        .third-box {
+            align-self: flex-end;
+        }
+
+        .first-box,
+        .second-box,
+        .third-box {
+            width: 200px;
+            height: 100px;
+            background: red;
+        }
+        /* ============ */
+        .four-three-wrap {
+            width: 400px;
+        }
+        .four-three {
+            /* 注意这个width的单位可以是100% 或者100vw，
+               如果想自定义宽度，可以在外层加一个父容器设置宽度，
+               如果直接在当前元素设置一个定宽如400px，则padding-top设置百分比实现固定宽高比无效
+            */
+            width: 100%;
+            height: 0;
+            padding-top: 75%;
+            background: green;
+        }
+        /* 这样是实现了固定宽高比，但其只是一个徒有其表的空盒子，里面没有内容。
+           如果想在里面放入内容，我们还需要将div内部的内容使用绝对定位来充满固定尺寸的容器元素。
+        */
+        .four-three > * {
+            position: absolute; /* 容器的内容的所有元素absolute，让子元素内容都将被padding挤出容器 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ============ */
+        /* infinite 表示动画无限次播放 linear表示动画从头到尾的速度是相同的 */
+        .circle{
+            margin-top: 100px;
+            animation: myRotation 5s linear infinite;
+        }
+        @keyframes myRotation {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </html>

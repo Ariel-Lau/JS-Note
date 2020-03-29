@@ -1,5 +1,6 @@
 # Promise
 内容摘自MDN和《ES6入门》
+优质文章品读：https://mp.weixin.qq.com/s/zcZwMRg9nymQrp4n6FEldA
 # 语法
 ```javascript
 new Promise( function(resolve, reject) {...} /* executor */  );
