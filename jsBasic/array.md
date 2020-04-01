@@ -261,10 +261,81 @@ true
 'object'
 ```
 
+### `array.slice()`可以直接复制一个数组，且不改变原数组；
+以下示例a和b不会相互影响，实现浅拷贝
+```javascript
+a = [0, 9, 8]
+(3) [0, 9, 8]
+b = a.slice()
+(3) [0, 9, 8]
+b[1]=6
+6
+b
+(3) [0, 6, 8]
+a
+(3) [0, 9, 8]
+a[2]=5
+5
+a
+(3) [0, 9, 5]
+b
+(3) [0, 6, 8]
+```
+
+### `array.splice(0, array.length)`也可以复制一个数组，但是会改变原数组
+```javascript
+a = [6, 3, 1]
+(3) [6, 3, 1]
+b = a.splice(0)
+(3) [6, 3, 1]
+b
+(3) [6, 3, 1]
+a
+[]length: 0__proto__: Array(0)
+b[0]=2
+2
+b
+(3) [2, 3, 1]
+a
+[]
+```
+
+### 扩展，将两个对象的属性合并
+通过扩展运算符`...`来合并两个对象的属性
+```javascript
+obj1 = {a:1}
+{a: 1}
+obj2={b:2}
+{b: 2}
+// 不会改变原对象
+obj3 = {...obj1, ...obj2}
+{a: 1, b: 2}
+obj1
+{a: 1}
+obj2
+{b: 2}
+// 深拷贝？不是深拷贝，如果改变obj3.c中的对象属性值，obj1也会被改变，扩展运算符...实现浅拷贝合并
+obj1.c={d:6}
+{d: 6}
+obj1
+{a: 1, c: {…}}a: 1c: {d: 6}__proto__: Object
+obj3 = {...obj1, ...obj2}
+{a: 1, c: {…}, b: 2}a: 1c: d: 6__proto__: Objectb: 2__proto__: Object
+```
+类似于
+```javascript
+// Object.assign(target, obj2) => 会改变target对象，且直接返回合并后的target对象
+var obj4 = Object.assign(obj1, obj2)
+undefined
+obj4
+{a: 1, b: 2}
+```
+
 ### `[].slice.call()`和`Array.prototype.call()`的区别：
 `[].slice.call()`：（1）先建一个空数组[]，（2）然后在数组的原型对象上找到slice方法，（3）最后通过call绑定到需要调用slice()方法的对象上（如类数组对象）。
 `Array.prototype.call()`: （1）直接在数组的原型对象上找到slice方法，（2）然后通过call绑定到需要调用slice()方法的对象上（如类数组对象）。
 `Array.prototype.call()`找到slice方法的性能要优于`[].slice.call()`，因为是直接在数组原型对象上找的。
+
 9. ...扩展运算符
 **浅拷贝**
 * 解构赋值
@@ -309,7 +380,12 @@ undefined
 [...'hello']; // [ "h", "e", "l", "l", "o" ]
 ```
 
-10. 扩展内容
+* 结合`set`数据结构可以对数组和字符串去重
+```javascript
+[...new Set('ababbc')].join(''); // 'abc'
+```
+
+1.  扩展内容
 * 如果一个数组调用`valueOf()`的话返回的还是一个数组：
 ```javascript
 [1, 2].valueOf(); // [1, 2]

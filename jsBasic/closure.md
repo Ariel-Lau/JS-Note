@@ -11,6 +11,31 @@
 2. 闭包是指有权访问另一个函数作用域中的变量的函数。——《高程》
 
 ## 实现？在一个函数内部创建另一个函数就会形成闭包。
+```javascript
+var a = 100;
+function closure() {
+  var a = 200;
+  return function() {
+    console.log(a);
+  }
+}
+var fn = closure();
+fn(); // 200 闭包会保存外层作用域中的变量
+```
+
+对比非闭包
+```javascript
+var a = 100;
+function fn(f) {
+  var a = 200;
+  f();
+}
+function f() {
+  console.log(a);
+}
+fn(f); // 100 因为f函数时定义在全局的，调用时输出的a也是全局的。
+```
+
 示例1：
 ```javascript
 function makeFunc() {

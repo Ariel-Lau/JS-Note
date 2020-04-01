@@ -14,11 +14,15 @@
         <div id="some-top">4.2 测试锚点回到特定位置</div>
         <p>2. 实现一个梯形（利用border实现），width: 100px; height:0;</p>
         <div class="trapezoid"></div>
-        <p>3. 实现一个上三角形</p>
+        <p>3. 实现一个上三角形(实现的是一个等腰三角形)</p>
         <p>方法一：利用border实现，width\height：0</p>
         <div class="triggle-1"></div>
         <p>方法二：利用两个border拼成一个三角形，width:0;height:0,transform:rotate(-40deg)</p>
         <div class="triggle-2"></div>
+        <p>实现一个直角三角形</p>
+        <div class="right-triggle"></div>
+        <p>实现一个等边三角形，三角形的角度可以通过控制border的宽度来控制</p>
+        <div class="equal-triggle"></div>
         <p>实现利用无序列表嵌套无序列表实现三级菜单</p>
         <div>
             <ul id="nav">
@@ -95,6 +99,27 @@
             border: 100px solid;
             border-color: red red transparent transparent;
             transform: rotate(-45deg);
+        }
+        
+        .right-triggle {
+            height: 0;
+            width: 0;
+            border-color: transparent transparent #999999 transparent;
+            /*border-top-width设置为0，为了让透明的顶部的三角形不占据空间*/
+            border-style: solid;
+            /* 等腰直角三角形，下左的border高度一样，右border高度为0，上border是否有值没有关系 */
+            border-width: 0 0 50px 50px;
+        }
+        
+        /* 等边三角形 */
+        .equal-triggle {
+            height: 0;
+            width: 0;
+            border-color: transparent transparent #999999 transparent;
+            /*border-top-width设置为0，为了让透明的顶部的三角形不占据空间*/
+            border-style: solid;
+            /* 等边三角形，左右的border高度一样，下border的宽度根据左右border的勾股定理计算得到 */
+            border-width: 0 50px 86.6px 50px;
         }
 
         /* id选择器 子选择器 */

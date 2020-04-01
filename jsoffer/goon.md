@@ -603,7 +603,13 @@ arr = arr.ownFlat();
 ```
 
 #### 题目扩展mm：
-<font color="red">1.数组去重：</font>
+<font color="red">1.字符串去重</font>
+
+```javascript
+[...new Set('ababbc')].join(''); // 'abc'
+```
+
+<font color="red">2.数组去重：</font>
 
 方法一：利用JS对象的特性，去除数组中的重复项
 js对象的特性：`在js对象中 key 是永远不会重复的`
@@ -768,6 +774,24 @@ for (var i = 0; i < 10; i++) {
 ```
 
 **其它类似题目扩散mm**：如果是下面这个写法的话不会输出10, 10, 10, 10....，因为是直接同步输出，而不是异步输出，每次输出的都是当前循环轮的i值，而不会被下次循环的i更新值，而setTimeout异步的话是会改变上一轮的全局变量i的值。
+
+```javascript
+var arr = [1, 2, 3, 4, 5];
+var i = 0;
+var len = arr.length;
+var a;
+for (i = 0; i < len; i++) {
+    console.log(i); // 0 1 2 3 4
+}
+
+var arr = [1, 2, 3, 4, 5];
+var i = 0;
+var len = arr.length;
+var a;
+for (i = 0; i < len; i++) {
+  setTimeout(() => { console.log(i)}, 0); // 5 5 5 5 5 
+}
+```
 
 ```javascript
 for (var i = 0; i < 10; i++) {
@@ -1570,3 +1594,298 @@ console.log(add(1,2)(3,4)(5));
 console.log(add(1,2)(3)(4)(5));
 console.log(add(1)(2)(3)(4)(5));
 ```
+
+### 8.输出下列结果
+```javascript
+const obj = {
+    a: 100
+}
+const obj1 = obj;
+let a1 = obj.a;
+obj1.a = 200;
+console.log(obj.a); // 200
+console.log(a1); // 100 因为a1先被赋值obj.a 100，然后才改变obj1.a的值
+a1 = 300;
+console.log(obj.a); // 200
+console.log(obj1.a); // 200
+```
+
+### 9.异步promise
+(1) 第一小题
+```javascript
+new Promise(() => {
+  throw new Error();
+}).then(() => {
+	console.log(1);
+}).catch(
+() => {
+	console.log(2);
+});
+// 2
+```
+
+参考：https://es6.ruanyifeng.com/#docs/promise#Promise-prototype-then
+
+```javascript
+new Promise(() => {
+  throw new Error();
+}).then(() => {
+  console.log('resolved', 1);
+}, () => {
+  console.log('reject', 2);
+}).catch(() => {
+  console.log(3);
+}).then(() => {
+  console.log(4);
+});
+// 2 4
+```
+上面代码中，第一个promise返回了reject，所以第一个then()调用中会调用第二个回调函数，输出2；如果第一个promise返回了正常的resolved，那么then()调用中会调用第一个回调函数，输出1。
+注意then回调里面如果有两个参数，那么不会再调用catch的回调。
+
+```javascript
+p.then((val) => console.log('fulfilled:', val))
+  .catch((err) => console.log('rejected', err));
+
+// 等同于
+p.then((val) => console.log('fulfilled:', val))
+  .then(null, (err) => console.log("rejected:", err));
+```
+
+一般来说，不要在then方法里面定义 Reject 状态的回调函数（即then的第二个参数），总是使用catch方法。
+
+```javascript
+// bad
+promise
+  .then(function(data) {
+    // success
+  }, function(err) {
+    // error
+  });
+
+// good
+promise
+  .then(function(data) { //cb
+    // success
+  })
+  .catch(function(err) {
+    // error
+  });
+```
+(2) 第二小题，文章来源：https://mp.weixin.qq.com/s/zcZwMRg9nymQrp4n6FEldA
+```javascript
+let p1 = new Promise(()=>{
+    setTimeout(()=>{
+      console.log(1)
+    },1000)
+    console.log(2)
+  })
+console.log(3) // 2 3 1
+```
+
+同步任务 -> 微任务 -> 宏任务
+```javascript
+let p1 = new Promise((resolve,reject)=>{
+  console.log(1);
+  resolve('浪里行舟')
+  console.log(2)
+})
+// then:设置成功或者失败后处理的方法
+p1.then(result=>{
+ //p1延迟绑定回调函数
+  console.log('成功 '+result)
+},reason=>{
+  console.log('失败 '+reason)
+})
+console.log(3)
+// 1
+// 2
+// 3
+// 成功 浪里行舟
+```
+
+```javascript
+let p1=new Promise((resolve,reject)=>{
+    resolve(100) // 决定了下个then中成功方法会被执行
+})
+// 连接p1
+let p2=p1.then(result=>{
+    console.log('成功1 '+result)
+    return Promise.reject(1) 
+// 返回一个新的Promise实例，决定了当前实例是失败的，所以决定下一个then中失败方法会被执行
+},reason=>{
+    console.log('失败1 '+reason)
+    return 200
+})
+// 连接p2 
+let p3=p2.then(result=>{
+    console.log('成功2 '+result)
+},reason=>{
+    console.log('失败2 '+reason)
+})
+// 成功1 100
+// 失败2 1
+```
+
+```javascript
+new Promise(resolve=>{
+    resolve(a) // 报错 
+// 这个executor函数执行发生异常错误，决定下个then失败方法会被执行
+}).then(result=>{
+    console.log(`成功：${result}`)
+    return result*10
+},reason=>{
+    console.log(`失败：${reason}`)
+// 执行这句时候，没有发生异常或者返回一个失败的Promise实例，所以下个then成功方法会被执行
+// 这里没有return，最后会返回 undefined
+}).then(result=>{
+    console.log(`成功：${result}`)
+},reason=>{
+    console.log(`失败：${reason}`)
+})
+// 失败：ReferenceError: a is not defined
+// 成功：undefined
+```
+
+```javascript
+let p1 = Promise.resolve(1)
+let p2 = new Promise(resolve => {
+  setTimeout(() => {
+    resolve(2)
+  }, 1000)
+})
+async function fn() {
+  console.log(1); // 同步任务
+  // 当代码执行到此行（先把此行），构建一个异步的微任务
+  // 等待promise返回结果，并且await下面的代码也都被列到任务队列中
+  let result1 = await p2;
+  console.log(3); // 等微任务p2 -> 宏任务setTimeout()执行之后才会执行
+  let result2 = await p1; // 等微任务p1执行之后才会执行
+  console.log(4);
+}
+fn();
+console.log(2); // 同步任务
+// 1 2 3 4
+```
+如果 await 右侧表达逻辑是个 promise，await会等待这个promise的返回结果，只有返回的状态是resolved情况，才会把结果返回,如果promise是失败状态，则await不会接收其返回结果，await下面的代码也不会在继续执行。
+
+```javascript
+let p1 = Promise.reject(100);
+async function fn1() {
+  let result = await p1;
+  console.log(1); //这行代码不会执行
+}
+```
+
+```javascript
+
+console.log(1); // 同步任务
+setTimeout(()=>{console.log(2)},1000); // 宏任务1
+async function fn(){
+    console.log(3); // 同步任务
+    setTimeout(()=>{console.log(4)},20); // 这是20ms，宏任务2
+    return Promise.reject();
+}
+async function run(){
+    console.log(5); // 同步任务
+    await fn();
+    console.log(6); // 不会执行，因为fn最终reject了
+}
+run()
+//需要执行150ms左右
+for(let i = 0; i < 90000000; i++){}
+// 150ms之后宏任务2已经到点可执行了，所以会先输出4
+setTimeout(()=>{
+    console.log(7);
+    new Promise(resolve=>{
+        console.log(8);
+        resolve();
+    }).then(()=>{console.log(9);})
+},0)
+console.log(10); // 同步任务
+// 1 5 3 10 4 7 8 9 2
+```
+做这道题之前，读者需明白：
+* 基于微任务的技术有 MutationObserver、Promise 以及以 Promise 为基础开发出来的很多其他的技术，本题中resolve()、await fn()都是微任务。
+* 不管宏任务是否到达时间，以及放置的先后顺序，每次主线程执行栈为空的时候，引擎会优先处理微任务队列，处理完微任务队列里的所有任务，再去处理宏任务。
+
+接下来，我们一步一步分析：
+* 首先执行同步代码，输出 1，遇见第一个setTimeout，将其回调放入任务队列（宏任务）当中，继续往下执行
+* 运行run(),打印出 5，并往下执行，遇见 await fn()，将其放入任务队列（微任务）
+* await fn() 当前这一行代码执行时，fn函数会立即执行的,打印出3，遇见第二个setTimeout，将其回调放入任务队列（宏任务），await fn() 下面的代码需要等待返回Promise成功状态才会执行，所以6是不会被打印的。
+* 继续往下执行，遇到for循环同步代码，需要等150ms,虽然第二个setTimeout已经到达时间，但不会执行，遇见第三个setTimeout，将其回调放入任务队列（宏任务），然后打印出10。值得注意的是，这个定时器 推迟时间0毫秒实际上达不到的。根据HTML5标准，setTimeOut推迟执行的时间，最少是4毫秒。
+* 同步代码执行完毕，此时没有微任务，就去执行宏任务，上面提到已经到点的setTimeout先执行，打印出4
+* 然后执行下一个setTimeout的宏任务，所以先打印出7，new Promise的时候会立即把executor函数执行，打印出8，然后在执行resolve时，触发微任务，于是打印出9
+* 最后执行第一个setTimeout的宏任务，打印出2
+
+#### Promise应用
+假设有这样一个需求：红灯 3s 亮一次，绿灯 1s 亮一次，黄灯 2s 亮一次；如何让三个灯不断交替重复亮灯？三个亮灯函数已经存在：
+```javascript
+function red() {
+    console.log('red');
+}
+function green() {
+    console.log('green');
+}
+function yellow() {
+    console.log('yellow');
+}
+```
+这道题复杂的地方在于需要“交替重复”亮灯，而不是亮完一遍就结束的一锤子买卖，我们可以通过递归来实现：
+```javascript
+// 用 promise 实现
+let task = (timer, light) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (light === 'red') {
+        red();
+      }
+      if (light === 'green') {
+        green();
+      }
+      if (light === 'yellow') {
+        yellow();
+      }
+      resolve();
+    }, timer);
+  })
+}
+let step = () => {
+  task(3000, 'red')
+    .then(() => task(1000, 'green'))
+    .then(() => task(2000, 'yellow'))
+    .then(step)
+};
+step();
+```
+
+同样也可以通过async/await 的实现：
+```javascript
+let task = (timer, light) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (light === 'red') {
+        red();
+      }
+      if (light === 'green') {
+        green();
+      }
+      if (light === 'yellow') {
+        yellow();
+      }
+      resolve();
+    }, timer);
+  })
+}
+//  async/await 实现
+let step = async () => {
+  await task(3000, 'red');
+  await task(1000, 'green');
+  await task(2000, 'yellow');
+  step();
+};
+step();
+```
+用 async/await 可以实现用同步代码的风格来编写异步代码
+
+### 手动实现一个Promise

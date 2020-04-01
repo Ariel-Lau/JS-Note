@@ -364,9 +364,11 @@ function deepCopy(obj) {
         return;
     }
     // 初始化新开辟的内存空间时需要判断下是存储对象还是数组
+    // 或者通过 var newO = Array.isArray(obj) ? [] : {};
     var newO = obj instanceof Array ? [] : {};
     // for in可以遍历到继承的可枚举属性
-    for(var key in obj) {
+    for(let key in obj) {
+        // 拷贝只拷贝对象自身的属性即可
         if(obj.hasOwnProperty(key)){
             //深拷贝的关键代码：如果对象的属性值仍然是一个引用类型的值，则进行递归，否则直接赋值给新对象
             newO[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
