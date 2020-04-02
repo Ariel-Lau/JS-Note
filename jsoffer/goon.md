@@ -1536,6 +1536,18 @@ let obj = {
 document.body.onclick = fn.myBind(obj, 100, 200);
 ```
 
+柯里化函数
+```javascript
+function curry(fn) {
+    // 获取外部函数的参数
+    let outerArgs = Array.prototype.call(arguments, 1);
+    return function() {
+        // 将外部函数和内部函数结合传参
+        fn.apply(null, outerArgs.concat(...args));
+    }
+}
+```
+
 题目：
 
 ![](./imgs/currying1.jpg)
@@ -1889,3 +1901,110 @@ step();
 用 async/await 可以实现用同步代码的风格来编写异步代码
 
 ### 手动实现一个Promise
+
+
+### 防抖和节流
+参考：
+https://mp.weixin.qq.com/s/Vkshf-nEDwo2ODUJhxgzVA
+https://juejin.im/post/5b7b88d46fb9a019e9767405
+
+#### 防抖（debounce）：
+防抖：`debounce`会合并事件且不会去触发事件，当一定时间内没有触发再这个事件时，才真正去触发事件。即将几次操作合并为一次操作。
+原理：维护一个计时器，规定在delay时间后触发函数，在delay时间内再次触发就会取消之前的计时器而重新设置，这样保证只有最后一次操作能被触发。
+通俗解释：短时间内多次触发同一个事件，只执行最后一次，或者只在开始时执行，中间不执行。
+栗子：乘坐公交车，不停地上人，连续上人的过程中司机师傅是不会开车的，只有当最后一个人上车了，公交司机才会开车。如果上一个人启动下，下一个人上车又停车，这样车就会抖得厉害啦，等最后一个人上完车之后再启动，这样就能平稳行驶啦。
+应用场景：
+1. bjt表单类页面的步骤条的横滑，横滑需要计算向左滚动的距离，使用防抖，在最后停止滑动的时候执行滑动间距计算函数即可，而不需要再每次触发滑动事件监听的时候都执行滑动间距计算函数。减少不必要的、无效的计算，节省资源。
+2. bjt表单提交也可以通过防抖处理，保证在一定时间内只触发一次提交请求，防止短时间内多次发送请求，增加服务端压力。
+#### 节流（throttle）：
+节流：一定时间内只触发一次函数。
+原理：通过判断是否到达一定时间来触发函数。
+通俗解释：节流是连续触发事件的过程中以一定时间间隔执行函数。节流会稀释你的执行频率，比如每间隔1秒钟，只会执行一次函数，无论这1秒钟内触发了多少次事件。
+栗子：
+应用场景：
+#### 防抖和节流：
+<font color="red">函数防抖：</font>只在最后一次事件后才触发一次函数；
+<font color="red">函数节流：</font>不管事件触发有多频繁，都会保证在规定时间内一定会执行一次真正的事件处理函数；如：在页面的无限加载场景下，需要用户在滚动页面时，每隔一段时间发一次 Ajax 请求，而不是在用户停下滚动页面操作时才去请求数据。这样的场景，就适合用节流技术来实现。
+
+#### 防抖函数实现：
+* 非立即执行版本：非立即执行版的意思是触发事件后函数不会立即执行，而是在 n 秒后执行，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。
+* 立即执行版本：立即执行版的意思是触发事件后函数会立即执行，然后 n 秒内不触发事件才能继续执行函数的效果。
+* 非立即执行和立即执行结合版：bjt
+```javascript
+/**
+ * @desc 函数防抖
+ * @param fn 函数
+ * @param delay 延迟执行毫秒数
+ * @param imme true 表立即执行，false 表非立即执行
+ */
+function debounce(fn, delay, imme) => {
+    let timer = null;
+    return (...args) => {
+        if (imme && timer == null) {
+            fn(...args);
+        }
+        clearTimeout(timer);
+        timer = null;
+        timer = setTimeout(args => {
+            fn(...args);
+            timer = null;
+        }, delay, args);
+    };
+};
+```
+
+#### 节流函数的实现
+1. 时间戳方式实现节流：时间戳版会在开始时立即执行一次，最后时间间隔内不再执行；
+```javascript
+function throttle(func, delay) {
+    let prev = Date.now();
+    let that = this;
+    return (...args) => {
+        let now = Date.now();
+        // 节流函数执行和真正的函数执行时间间隔大于延迟执行的时间，则执行函数
+        let remaining = delay - (now - pre);
+        if (remaining <= 0) {
+            func.apply(that, ...args);
+            prev = Date.now();
+        }
+    }
+}
+```
+
+2. 定时器方式实现节流：定时器版开始时不执行，最后时间间隔内再执行一次。
+```javascript
+function throttle(func, delay) {
+    let timer = null;
+    let that = this;
+    return (...args) {
+        if (!timer) {
+            timer = setTimeout(function(args) {
+                func.apply(that, args);
+                // 真正的执行函数在执行完成，将计时器timer计时器清空
+                timer = null;
+            }, delay, args);
+        }
+    }
+}
+```
+
+3. 时间戳 + 定时器实现节流
+```javascript
+function throttle(func, delay) {
+    let startTime = Date.now();
+    let timer = null;
+    let that = this;
+    return (...args) {
+        let curTime = Date.now();
+        let remaining = delay - (curTime - startTime);
+        clearTimeout(timer);
+        timer = null;
+        if (remaining <= 0) {
+            func.apply(that, args);
+            startTime = Date.now();
+        } else {
+            timer = setTimeout(func, remaining);
+        }
+    }
+}
+```
