@@ -151,6 +151,7 @@ arr4.flat(); // [1, 2, 4, 5]
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
 
 * 用reduce将二维数组转化成一维数组
+  注意：这种方式只能将二维数组转成一维数组，不能将三维、四维等更深层次的数组转为一维数组
 
 ```javascript
 // 传入[]作为第一次调用回调函数时的第一个参数的值
@@ -233,7 +234,7 @@ console.log(result); //[1,2,3,4,5]
 
 (5) 按顺序执行promise（参考mdn）
 
-8. slice
+1. slice
 **浅拷贝**
 把类数组转成真正的数组，不会改变原来的类数组，返回一个新的真正的数组
 

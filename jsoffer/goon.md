@@ -371,7 +371,7 @@ obj[b]='b' => obj['[object Object]'] = 'b';
 ```
 
 ```javascript
-example4: 构造函数、普通函数、原型
+// example4: 构造函数、普通函数、原型
 function Foo() {
     Foo.a = function() {
         console.log(1);
@@ -679,6 +679,15 @@ var arr = [1,2,1,4,3,2,5,3];
 var un = [...new Set(arr)]; // [1, 2, 4, 3, 5]
 // 或者用Array.from展开set
 un = Array.from(new Set(arr)); // [1, 2, 4, 3, 5]
+```
+
+方法4：用reduce将二维数组转化成一维数组
+  注意：这种方式只能将二维数组转成一维数组，不能将三维、四维等更深层次的数组转为一维数组
+
+```javascript
+// 传入[]作为第一次调用回调函数时的第一个参数的值
+[[0, 1], [2, 3], [4, 5]].reduce((a, b) => a.concat(b), []);
+// [0, 1, 2, 3, 4, 5]
 ```
 
 ### 14.实现一个new
@@ -1103,217 +1112,7 @@ obj.push(1);
 obj.push(2); // obj.length变为4，obj[0], obj[1], obj[2], obj[3]=2
 console.log(obj); // {2: 1, 3: 2, length: 4, push: Array.prototype.push}
 ```
-
-## 算法开始表演
-
-### 1.冒泡排序：for循环
-最好的时间复杂度：o(n^2)
-
-最差的时间复杂度：o(n^2)
-
-冒泡思想：让数组中的当前项和最后一项进行比较，如果当前项比后一项大，则两项交换位置（让大的靠后）即可
-
-![](./imgs/bubble.jpg)
-
-代码实现：
-```javascript
-function bubble(arr) {
-    let tmp = null;
-    // 外层循环i控制比较的轮数
-    for (let i = 0; i < arr.length - 1; i++) {
-        // i = 0 第一轮：一个都没有放到排序好的数组里
-        // i = 1 第二轮：经过第一轮，排序好的数组已经在数组里放了1个值
-        // i = 2 第三轮：经过第一、二轮，排序好的数组已经在数组里放了2个值
-        // ....
-        // 里层循环控制每一轮比较的次数j
-        // arr.length - 1 - i 每循环一轮之后剩余要比较的元素个数就少一个，所以经过i轮循环后需要比较的元素就只有arr.length - 1 - i个
-        for (let j = 0; j < arr.length - 1 - i; j++) {
-            if (arr[j] > arr[j+1]) {
-                // 当前项大于后一项
-                tmp = arr[j];
-                arr[j] = arr[j+1];
-                arr[j+1] = tmp;
-            }
-        }
-    }
-    return arr;
-}
-
-// 测试结果
-let arr = [2, 1, 5, 3, 9, 4];
-arr = bubble(arr);
-console.log(arr); // [1, 2, 3, 4, 5, 9]
-```
-
-### 2.插入排序：for循环
-![](./imgs/insert.png)
-思想：开辟一个新的数组，存放从要排序的数组中取到的值，然后再一个一个从未排序的数组中取值，再和新数组中的各个元素比较（可以从后往前（从新数组最后一项比较）也可以从前往后（从新数组第一项开始比较）），直到新元素插入到新数组中
-
-```javascript
-function insertSort(arr) {
-    // 1.准备一个新数组，用来存储从数组中取到的元素（类似抓到手里的牌），开始先取一个元素（类似先抓一张牌进来）
-    let newArr = [];
-    // 先存放第一个元素到新数组
-    newArr.push(arr[0]);
-    // 2.从第二项开始依次取元素（类似依次抓牌），一直到所有的元素都取完（一直到所有的牌都抓光）
-    for (let i = 0; i < arr.length; i++) {
-        // a是新取的元素（新抓的牌）
-        let a = arr[i];
-        // 和newArr中的元素依次比较（和newArr手里的牌依次比较（从后往前比较））
-        for (let j = newArr.length - 1; j > 0; j--) {
-            // 每一次都要比较newArr中的元素（手里的牌）
-            let b = newArr[j];
-            // 如果当前新元素a（新牌a）比要比较的元素b（牌b）大，则把a放到b的后面
-            if (a > b) {
-                // 把a放到b的后面
-                newArr.splice(j+1, 0, a);
-                // 结束此轮新牌和手里的牌比较
-                break;
-            }
-            // 已经比较到第一项，把新牌放到手中最前面即可
-            // 如果新牌已经和手里的牌比较到了第一项，则直接把新牌放到手里的最前面即可
-            if (j === 0) {
-                newArr.unshift(a);
-            }
-        }
-    }
-    return newArr;
-}
-// 测试结果
-let arr = [2, 1, 5, 3, 9, 4];
-arr = insertSort(arr);
-console.log(arr); // [1, 2, 3, 4, 5, 9]
-```
-
-```javascript
-// 自己手写的：
-function insert(arr) {
-    let newArr = [];
-    newArr[0] = arr[0];
-    for (let i = 1; i < arr.length; i++) {
-        for(let j = newArr.length - 1; j >= 0; j--){
-            if(arr[i] >= newArr[j]){
-                newArr.splice(j+1, 0, arr[i]);
-                break;
-            }
-            if (j === 0) {
-                newArr.unshift(arr[i]);
-                break;
-            }
-        }
-    }
-    return newArr;
-}
-var resArr = insert([3, 2, 8, 1, 5, 4, 0, 9]);
-console.log(resArr); // 测试结果：[0, 1, 2, 3, 4, 5, 8, 9]
-```
-
-### 3.快速排序：递归
-思路：
-
-![](./imgs/quick.png)
-
-基础知识：
-递归：函数执行的时候自己调用自己
-```javascript
-function fn() {
-    fn(); // Uncaught RangeError: Maximum call stack size exceeded 这种死递归会导致栈溢出
-}
-fn();
-```
-
-```javascript
-function fn() {
-    setTimeout(fn, 0); // 这种看似死递归的方法不会导致栈溢出错误
-}
-fn();
-```
-
-```javascript
-// 递归实现1-10累加的和
-function sum(n) {
-    if(n > 10) {
-        // 递归的出口
-        return 0;
-    }
-    return n + sum(n + 1);
-    // return 1 + sum(2)
-    // return 1 + 2 + sum(3)
-    // return 1 + 2 + 3 + sum(4)
-    // ......
-    // return 1 + 2 + 3 + 4 + ... + 10 + sum(11)
-    // return 1 + 2 + 3 + 4 + ... + 10 + 0
-}
-let total = sum(1);
-console.log(total); // 55
-```
-
-快排的代码实现
-```javascript
-function quickSort(arr) {
-    // 4.结束递归，找到递归的出口（当arr中小于等于1项时，则不用再继续处理）
-    if (arr.length <= 1) {
-        return arr;
-    }
-
-    // 1.找到数组的中间项，在原有的数组中把它移除
-    let midIndex = Math.floor(arr.length / 2);
-    // 基础知识细节：因为splice会返回被删除元素组成的数组，所以要通过取数组元素的下标获取到元素值，如：[1, 2, 3, 4, 5, 9].splice(2, 1)返回的是[3]，所以要通过[3][0]获取到3这个元素值
-    let midValue = arr.splice(midIndex, 1)[0];
-
-    // 2.准备左右两个数组，循环剩下数组中的每一项，比当前项小的放到左边数组中，反之放到右边数组中
-    let arrLeft = [];
-    let arrRight = [];
-    for(let i = 0; i < arr.length - 1; i ++) {
-        arr[i] < midValue ? arrLeft.push(arr[i]) : arrRight.push(arr[i]);
-    }
-
-    // 3.递归方式让左右两边的数组持续这样处理，一直到左右两边都排好序为止（最后让左边 + 中间值 + 右边拼接成为最后的结果）
-    // concat可以将值连接到数组，参考mdn：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
-    return quickSort(arrLeft).concat(midValue, quickSort(arrRight));
-
-}
-// 测试结果
-let arr = [2, 1, 5, 3, 9, 4];
-arr = quickSort(arr);
-console.log(arr); // [1, 2, 3, 4, 5, 9]
-```
-
-```javascript
-// 自己写的
-function quickSort(arr){
-    if(arr.length <= 1) {
-        return arr;
-    }
-    let midValue = null;
-    let midIndex = Math.floor(arr.length / 2);
-    let leftArr = [];
-    let rightArr = [];
-    midValue = arr.splice(midIndex, 1)[0];
-    for (let i = 0; i < arr.length; i++) {
-        if(midValue > arr[i]) {
-            leftArr.push(arr[i]);
-        }
-        else {
-            rightArr.push(arr[i]);
-        }
-    }
-    console.log('left:', leftArr, 'rightArr:', rightArr);
-    return quickSort(leftArr).concat(midValue, quickSort(rightArr));
-}
-
-var resArr = quickSort([3, 2, 8, 1, 5, 4, 0, 9]);
-console.log(resArr);
-// 测试结果
-// Script snippet %236:134 left: (5) [3, 2, 1, 4, 0] rightArr: (2) [8, 9]
-// Script snippet %236:134 left: [0] rightArr: (3) [3, 2, 4]
-// Script snippet %236:134 left: [] rightArr: (2) [3, 4]
-// Script snippet %236:134 left: [3] rightArr: []
-// Script snippet %236:134 left: [8] rightArr: []
-// Script snippet %236:139 (8) [0, 1, 2, 3, 4, 5, 8, 9]
-```
-
-### 4.
+### 20.
 题目：
 某公司1到12月份的销售额存在一个对象里面，如下：
 {
@@ -1364,7 +1163,7 @@ Object.key(obj).forEach(
 console.log(arr); // [ 222, 123, null, null, 888, null, null, null, null, null, null, null ]
 ```
 
-### 5.
+### 21.
 题目：给定两个数组，写一个方法来计算它们的交集
 ```javascript
 let num1 = [1, 2, 2, 1];
@@ -1408,7 +1207,7 @@ num1.forEach((item, index) => {
 });
 ```
 
-### 6.旋转数组
+### 22.旋转数组
 ![](./imgs/rotatearr.png)
 
 方法一：
@@ -1467,8 +1266,8 @@ return this;
 >
 ```
 
-### 7.柯里化：闭包
-函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即将多参数的函数转换成单参数的形式
+### 23.柯里化：闭包
+函数柯里化：预先处理的思想（利用闭包的机制，保存一些值便于后续使用），即`将多参数的函数转换成单参数的形式`
 
 柯里化 => 闭包：闭包的两大作用：保护；保存；(mm理解：保护内部的变量不被外层作用域访问到，保存外层作用域的变量和方法)
 
@@ -1536,6 +1335,18 @@ let obj = {
 document.body.onclick = fn.myBind(obj, 100, 200);
 ```
 
+柯里化函数
+```javascript
+function curry(fn) {
+    // 获取外部函数的参数
+    let outerArgs = Array.prototype.call(arguments, 1);
+    return function() {
+        // 将外部函数和内部函数结合传参
+        fn.apply(null, outerArgs.concat(...args));
+    }
+}
+```
+
 题目：
 
 ![](./imgs/currying1.jpg)
@@ -1595,7 +1406,7 @@ console.log(add(1,2)(3)(4)(5));
 console.log(add(1)(2)(3)(4)(5));
 ```
 
-### 8.输出下列结果
+### 24.输出下列结果
 ```javascript
 const obj = {
     a: 100
@@ -1610,282 +1421,33 @@ console.log(obj.a); // 200
 console.log(obj1.a); // 200
 ```
 
-### 9.异步promise
-(1) 第一小题
+### 25.按属性对object分类
+用数组的`reduce`方法，参考链接：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
 ```javascript
-new Promise(() => {
-  throw new Error();
-}).then(() => {
-	console.log(1);
-}).catch(
-() => {
-	console.log(2);
-});
-// 2
-```
+var people = [
+  { name: 'Alice', age: 21 },
+  { name: 'Max', age: 20 },
+  { name: 'Jane', age: 20 }
+];
 
-参考：https://es6.ruanyifeng.com/#docs/promise#Promise-prototype-then
-
-```javascript
-new Promise(() => {
-  throw new Error();
-}).then(() => {
-  console.log('resolved', 1);
-}, () => {
-  console.log('reject', 2);
-}).catch(() => {
-  console.log(3);
-}).then(() => {
-  console.log(4);
-});
-// 2 4
-```
-上面代码中，第一个promise返回了reject，所以第一个then()调用中会调用第二个回调函数，输出2；如果第一个promise返回了正常的resolved，那么then()调用中会调用第一个回调函数，输出1。
-注意then回调里面如果有两个参数，那么不会再调用catch的回调。
-
-```javascript
-p.then((val) => console.log('fulfilled:', val))
-  .catch((err) => console.log('rejected', err));
-
-// 等同于
-p.then((val) => console.log('fulfilled:', val))
-  .then(null, (err) => console.log("rejected:", err));
-```
-
-一般来说，不要在then方法里面定义 Reject 状态的回调函数（即then的第二个参数），总是使用catch方法。
-
-```javascript
-// bad
-promise
-  .then(function(data) {
-    // success
-  }, function(err) {
-    // error
-  });
-
-// good
-promise
-  .then(function(data) { //cb
-    // success
-  })
-  .catch(function(err) {
-    // error
-  });
-```
-(2) 第二小题，文章来源：https://mp.weixin.qq.com/s/zcZwMRg9nymQrp4n6FEldA
-```javascript
-let p1 = new Promise(()=>{
-    setTimeout(()=>{
-      console.log(1)
-    },1000)
-    console.log(2)
-  })
-console.log(3) // 2 3 1
-```
-
-同步任务 -> 微任务 -> 宏任务
-```javascript
-let p1 = new Promise((resolve,reject)=>{
-  console.log(1);
-  resolve('浪里行舟')
-  console.log(2)
-})
-// then:设置成功或者失败后处理的方法
-p1.then(result=>{
- //p1延迟绑定回调函数
-  console.log('成功 '+result)
-},reason=>{
-  console.log('失败 '+reason)
-})
-console.log(3)
-// 1
-// 2
-// 3
-// 成功 浪里行舟
-```
-
-```javascript
-let p1=new Promise((resolve,reject)=>{
-    resolve(100) // 决定了下个then中成功方法会被执行
-})
-// 连接p1
-let p2=p1.then(result=>{
-    console.log('成功1 '+result)
-    return Promise.reject(1) 
-// 返回一个新的Promise实例，决定了当前实例是失败的，所以决定下一个then中失败方法会被执行
-},reason=>{
-    console.log('失败1 '+reason)
-    return 200
-})
-// 连接p2 
-let p3=p2.then(result=>{
-    console.log('成功2 '+result)
-},reason=>{
-    console.log('失败2 '+reason)
-})
-// 成功1 100
-// 失败2 1
-```
-
-```javascript
-new Promise(resolve=>{
-    resolve(a) // 报错 
-// 这个executor函数执行发生异常错误，决定下个then失败方法会被执行
-}).then(result=>{
-    console.log(`成功：${result}`)
-    return result*10
-},reason=>{
-    console.log(`失败：${reason}`)
-// 执行这句时候，没有发生异常或者返回一个失败的Promise实例，所以下个then成功方法会被执行
-// 这里没有return，最后会返回 undefined
-}).then(result=>{
-    console.log(`成功：${result}`)
-},reason=>{
-    console.log(`失败：${reason}`)
-})
-// 失败：ReferenceError: a is not defined
-// 成功：undefined
-```
-
-```javascript
-let p1 = Promise.resolve(1)
-let p2 = new Promise(resolve => {
-  setTimeout(() => {
-    resolve(2)
-  }, 1000)
-})
-async function fn() {
-  console.log(1); // 同步任务
-  // 当代码执行到此行（先把此行），构建一个异步的微任务
-  // 等待promise返回结果，并且await下面的代码也都被列到任务队列中
-  let result1 = await p2;
-  console.log(3); // 等微任务p2 -> 宏任务setTimeout()执行之后才会执行
-  let result2 = await p1; // 等微任务p1执行之后才会执行
-  console.log(4);
+function groupBy(objectArray, property) {
+  return objectArray.reduce(function (acc, obj) {
+    var key = obj[property];
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(obj);
+    return acc;
+  }, {});
 }
-fn();
-console.log(2); // 同步任务
-// 1 2 3 4
+
+var groupedPeople = groupBy(people, 'age');
+// groupedPeople is:
+// { 
+//   20: [
+//     { name: 'Max', age: 20 }, 
+//     { name: 'Jane', age: 20 }
+//   ], 
+//   21: [{ name: 'Alice', age: 21 }] 
+// }
 ```
-如果 await 右侧表达逻辑是个 promise，await会等待这个promise的返回结果，只有返回的状态是resolved情况，才会把结果返回,如果promise是失败状态，则await不会接收其返回结果，await下面的代码也不会在继续执行。
-
-```javascript
-let p1 = Promise.reject(100);
-async function fn1() {
-  let result = await p1;
-  console.log(1); //这行代码不会执行
-}
-```
-
-```javascript
-
-console.log(1); // 同步任务
-setTimeout(()=>{console.log(2)},1000); // 宏任务1
-async function fn(){
-    console.log(3); // 同步任务
-    setTimeout(()=>{console.log(4)},20); // 这是20ms，宏任务2
-    return Promise.reject();
-}
-async function run(){
-    console.log(5); // 同步任务
-    await fn();
-    console.log(6); // 不会执行，因为fn最终reject了
-}
-run()
-//需要执行150ms左右
-for(let i = 0; i < 90000000; i++){}
-// 150ms之后宏任务2已经到点可执行了，所以会先输出4
-setTimeout(()=>{
-    console.log(7);
-    new Promise(resolve=>{
-        console.log(8);
-        resolve();
-    }).then(()=>{console.log(9);})
-},0)
-console.log(10); // 同步任务
-// 1 5 3 10 4 7 8 9 2
-```
-做这道题之前，读者需明白：
-* 基于微任务的技术有 MutationObserver、Promise 以及以 Promise 为基础开发出来的很多其他的技术，本题中resolve()、await fn()都是微任务。
-* 不管宏任务是否到达时间，以及放置的先后顺序，每次主线程执行栈为空的时候，引擎会优先处理微任务队列，处理完微任务队列里的所有任务，再去处理宏任务。
-
-接下来，我们一步一步分析：
-* 首先执行同步代码，输出 1，遇见第一个setTimeout，将其回调放入任务队列（宏任务）当中，继续往下执行
-* 运行run(),打印出 5，并往下执行，遇见 await fn()，将其放入任务队列（微任务）
-* await fn() 当前这一行代码执行时，fn函数会立即执行的,打印出3，遇见第二个setTimeout，将其回调放入任务队列（宏任务），await fn() 下面的代码需要等待返回Promise成功状态才会执行，所以6是不会被打印的。
-* 继续往下执行，遇到for循环同步代码，需要等150ms,虽然第二个setTimeout已经到达时间，但不会执行，遇见第三个setTimeout，将其回调放入任务队列（宏任务），然后打印出10。值得注意的是，这个定时器 推迟时间0毫秒实际上达不到的。根据HTML5标准，setTimeOut推迟执行的时间，最少是4毫秒。
-* 同步代码执行完毕，此时没有微任务，就去执行宏任务，上面提到已经到点的setTimeout先执行，打印出4
-* 然后执行下一个setTimeout的宏任务，所以先打印出7，new Promise的时候会立即把executor函数执行，打印出8，然后在执行resolve时，触发微任务，于是打印出9
-* 最后执行第一个setTimeout的宏任务，打印出2
-
-#### Promise应用
-假设有这样一个需求：红灯 3s 亮一次，绿灯 1s 亮一次，黄灯 2s 亮一次；如何让三个灯不断交替重复亮灯？三个亮灯函数已经存在：
-```javascript
-function red() {
-    console.log('red');
-}
-function green() {
-    console.log('green');
-}
-function yellow() {
-    console.log('yellow');
-}
-```
-这道题复杂的地方在于需要“交替重复”亮灯，而不是亮完一遍就结束的一锤子买卖，我们可以通过递归来实现：
-```javascript
-// 用 promise 实现
-let task = (timer, light) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (light === 'red') {
-        red();
-      }
-      if (light === 'green') {
-        green();
-      }
-      if (light === 'yellow') {
-        yellow();
-      }
-      resolve();
-    }, timer);
-  })
-}
-let step = () => {
-  task(3000, 'red')
-    .then(() => task(1000, 'green'))
-    .then(() => task(2000, 'yellow'))
-    .then(step)
-};
-step();
-```
-
-同样也可以通过async/await 的实现：
-```javascript
-let task = (timer, light) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (light === 'red') {
-        red();
-      }
-      if (light === 'green') {
-        green();
-      }
-      if (light === 'yellow') {
-        yellow();
-      }
-      resolve();
-    }, timer);
-  })
-}
-//  async/await 实现
-let step = async () => {
-  await task(3000, 'red');
-  await task(1000, 'green');
-  await task(2000, 'yellow');
-  step();
-};
-step();
-```
-用 async/await 可以实现用同步代码的风格来编写异步代码
-
-### 手动实现一个Promise

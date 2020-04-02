@@ -326,3 +326,23 @@ $ git stash pop
 # 生成一个可供发布的压缩包
 $ git archive
 ```
+
+
+## 实操遇到的操作
+1. `git pull —rebase origin gov-dev`之前先`git stash`，最好不要用`git commit`提交
+2. 如果`git pull —rebase origin gov-dev`之后本地有冲突：
+	解决冲突；
+	`git status`
+	`git add -u`
+	`git rebase —continue`
+	`git stash pop`
+	如果pop出来后还有冲突，继续解决冲突
+	解决冲突之后，`git commit —amend`合并提交
+
+强制将本地分支同步成远程分支，执行这个命令之前最好先`git stash`, `git pull -f origin gov-dev:gov-dev`
+`add`之后放弃某个文件：`git reset ../../package-lock.json`
+
+
+clone代码之后可以直接执行获取远程分支到本地：`git pull origin gov:gov`
+这样不需要通过本地`git checkout -b gov-dev`然后再`git pull origin gov-dev`来同步
+`git checkout -b`是基于master再建一个本地分支

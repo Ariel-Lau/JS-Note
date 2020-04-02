@@ -65,6 +65,7 @@ function insertSort(arr) {
                 // 把a放到b的后面
                 newArr.splice(j+1, 0, a);
                 // 结束此轮新牌和手里的牌比较
+                // 一定要记得break; 否则排序会有问题
                 break;
             }
             // 已经比较到第一项，把新牌放到手中最前面即可
@@ -304,10 +305,12 @@ function binSearch(arr, low, high, target){
     }
     else if (arr[mid] < target) {
         low = mid + 1;
+        // 一定要记得把递归调用的结果return出去，否则就出错了
         return binSearch(arr, low, high, target);
     }
     else {
         high = mid - 1;
+        // 同上
         return binSearch(arr, low, high, target);
     }
 }
