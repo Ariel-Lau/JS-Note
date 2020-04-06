@@ -590,6 +590,7 @@ function ownFlat() {
             let item = arr[i];
             if (Array.isArray(item)) {
                 fn(item);
+                // continue继续循环，不走后面的res.push
                 continue;
             }
             res.push(item);
@@ -1347,7 +1348,7 @@ function curry(fn) {
 }
 ```
 
-题目：
+题目：实现函数柯里化
 
 ![](./imgs/currying1.jpg)
 
@@ -1450,4 +1451,87 @@ var groupedPeople = groupBy(people, 'age');
 //   ], 
 //   21: [{ name: 'Alice', age: 21 }] 
 // }
+```
+
+### 26. 关于函数执行顺序的经典题目
+```javascript
+function f(){return 1;}
+// 返回4，第四个f函数覆盖了第一个f函数（即第一个函数不存在了），因为js解释器会优先解释function语句式定义的函数
+f();
+var f=new Function("return 2;");
+// 返回2，顺序执行第二个f函数
+f();
+var f=function(){return 3;}
+// 返回3，顺序执行
+f();
+function f(){return 4;}
+// 返回值为3，因为第四个f函数在最开始就被优先解释了，并在第一次函数调用中被调用，因此，此处调用的f仍然为第三个f函数
+f();
+var f=new Function("return 5;");
+// 返回5，顺序执行
+f();
+var f=function(){return 6};
+// 返回6，顺序执行
+f();
+```
+
+以下升级版参考：https://mp.weixin.qq.com/s/X40KEH37cRj01a_AuTzKrw
+升级版1
+```javascript
+function Foo() {
+    getName = function () { alert (1); };
+    return this;
+}
+Foo.getName = function () { alert (2);};
+Foo.prototype.getName = function () { alert (3);};
+var getName = function () { alert (4);};
+function getName() { alert (5);}
+ 
+//请写出以下输出结果：
+Foo.getName(); // 2
+getName(); // 4
+Foo().getName(); // 1
+getName(); // 1
+new Foo.getName(); // 2
+new Foo().getName(); // 3
+new new Foo().getName(); // 3
+```
+
+升级版2
+```javascript
+function Foo() {
+	this.getName = function() {
+		console.log(3);
+		return {
+			getName: getName //这个就是第六问中涉及的构造函数的返回值问题
+		}
+	}; //这个就是第六问中涉及到的，JS构造函数公有方法和原型链方法的优先级
+	getName = function() {
+		console.log(1);
+	};
+	return this
+}
+Foo.getName = function() {
+	console.log(2);
+};
+Foo.prototype.getName = function() {
+	console.log(6);
+};
+var getName = function() {
+	console.log(4);
+};
+
+function getName() {
+	console.log(5);
+} //答案：
+Foo.getName(); //2
+getName(); //4
+console.log(Foo())
+Foo().getName(); //1
+getName(); //1
+new Foo.getName(); //2
+new Foo().getName(); //3
+//多了一问
+new Foo().getName().getName(); //3 1
+new new Foo().getName(); //3
 ```

@@ -758,6 +758,39 @@ const mergePromise = ajaxArray => {
 };
 ```
 
+学习内容参考：6. 实例：按顺序完成异步操作：https://es6.ruanyifeng.com/#docs/async
+
+```javascript
+function logInOrder(urls) {
+  // 远程读取所有URL
+  const textPromises = urls.map(url => {
+    return fetch(url).then(response => response.text());
+  });
+
+  // 按次序输出
+  textPromises.reduce((chain, textPromise) => {
+    return chain.then(() => textPromise)
+      .then(text => console.log(text));
+  }, Promise.resolve());
+}
+```
+
+```javascript
+// async/await的写法
+async function logInOrder(urls) {
+  // 并发读取远程URL
+  const textPromises = urls.map(async url => {
+    const response = await fetch(url);
+    return response.text();
+  });
+
+  // 按次序输出
+  for (const textPromise of textPromises) {
+    console.log(await textPromise);
+  }
+}
+```
+
 https://www.cnblogs.com/xuning/p/8045946.html
 同链接1的第七题
 
@@ -897,6 +930,23 @@ function limtLoad(urls, fn, limitNum) {
         .then(() => {
             Promise.all(promiseFnArr);
         });
+}
+```
+
+同上题，学习内容参考：6. 实例：按顺序完成异步操作：https://es6.ruanyifeng.com/#docs/async
+
+```javascript
+function logInOrder(urls) {
+  // 远程读取所有URL
+  const textPromises = urls.map(url => {
+    return fetch(url).then(response => response.text());
+  });
+
+  // 按次序输出
+  textPromises.reduce((chain, textPromise) => {
+    return chain.then(() => textPromise)
+      .then(text => console.log(text));
+  }, Promise.resolve());
 }
 ```
 
@@ -1307,32 +1357,3 @@ function clone(origin) {
 }
 ```
 
-## 关于window中的一些高度、宽度等的概念
-一个页面的展示，从外到内的容器：屏幕 -> 浏览器 -> 页面
-HTML元素展现在页面内，页面展现在浏览器内，而浏览器展现在屏幕内。
-### 整体展示：
-![](./imgs/wh1.jpg)
-
-### 屏幕信息：
-![](./imgs/screeninfo.jpg)
-`screen.height`：屏幕高度。
-`screen.width`：屏幕宽度。
-`screen.availHeight`：屏幕可用高度。即屏幕高度减去上下任务栏后的高度，可表示为软件最大化时的高度。
-`screen.availWidth`：屏幕可用宽度。即屏幕宽度减去左右任务栏后的宽度，可表示为软件最大化时的宽度。
-`任务栏高/宽度` ：可通过屏幕高/宽度 减去 屏幕可用高/宽度得出。如：`任务栏高度 = screen.height - screen.availHeight`。
-
-### 浏览器信息
-![](./imgs/browserinfo.jpg)
-`window.outerHeight`：浏览器高度。
-`window.outerWidth`：浏览器宽度。
-`window.innerHeight`：浏览器内页面可用高度；此高度包含了水平滚动条的高度(若存在)。可表示为：浏览器当前高度去除浏览器边框、工具条后的高度。
-`window.innerWidth`：浏览器内页面可用宽度；此宽度包含了垂直滚动条的宽度(若存在)。可表示为：浏览器当前宽度去除浏览器边框后的宽度。
-`工具栏高/宽度`：包含了地址栏、书签栏、浏览器边框等范围。如：高度，可通过浏览器高度 - 页面可用高度得出，即：`window.outerHeight - window.innerHeight`。
-
-### 页面信息
-![](./imgs/pageinfo.jpg)
-`body.offsetHeight`：body总高度。
-`body.offsetWidth`：body总宽度。
-`body.clientHeight`：body展示的高度；表示body在浏览器内显示的区域高度。
-`body.clientWidth`：body展示的宽度；表示body在浏览器内显示的区域宽度。
-`滚动条高度/宽度`：如高度，可通过浏览器内页面可用高度 - body展示高度得出，即`window.innerHeight - body.clientHeight`。

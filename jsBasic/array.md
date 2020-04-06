@@ -229,7 +229,7 @@ let result = arr.sort().reduce((init, current) => {
     }
     return init;
 }, []);
-console.log(result); //[1,2,3,4,5]
+console.log(result); // [1,2,3,4,5]
 ```
 
 (5) 按顺序执行promise（参考mdn）

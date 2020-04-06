@@ -548,171 +548,46 @@ console.log('改变拷贝对象之后的原对象：', testObj);
 //   age: 16 }
 ```
 
-## 10. 实现二分查找：输入的数组必须是一个已经排好序的数组，如果未排序，则先进行排序
-
-如果找到目标值，则返回目标值在数组中的下标。
-算法的核心是通过移动左右下标指针来实现的，不管是非递归实现还是递归实现，都是通过移动`low`和`high`来实现的。
-
-非递归实现
-
-```javascript
-function binSearch(arr, target){
-    let low = 0;
-    let high = arr.length - 1;
-    while(low <= high) {
-        // 注意这个mid取值是根据low和high的平均值来取值的，且要放在while循环里，每次更新low和high之后才会重新计算mid
-        let mid = Math.floor((low + high) / 2);
-        if (arr[mid] === target) {
-            return mid;
-        }
-        else if (arr[mid] < target) {
-            low = mid + 1;
-        }
-        else {
-            high = mid - 1;
-        }
-    }
-    return -1;
-}
-let res = binSearch([1, 3, 5, 8, 9], 3);
-console.log(res); // 1
-```
-
-递归实现
-```javascript
-function binSearch(arr, low, high, target){
-    if(low > high) {
-        return -1;
-    }
-    let mid = Math.floor((low + high) /2);
-    if (arr[mid] == target) {
-        return mid;
-    }
-    else if (arr[mid] < target) {
-        low = mid + 1;
-        return binSearch(arr, low, high, target);
-    }
-    else {
-        high = mid - 1;
-        return binSearch(arr, low, high, target);
-    }
-}
-let res = binSearch([1, 3, 5, 8, 9], 0, 4, 3);
-console.log(res); // 1
-```
-
-## 11. 实现二叉树的广度优先搜索
-* 深度优先不需要记住所有的节点, 所以占用空间小, 而广度优先需要先记录所有的节点占用空间大；
-* 深度优先有回溯的操作(没有路走了需要回头)所以相对而言时间会长一点；
-
-* 深度优先采用的是堆栈的形式, 即先进后出；
-* 广度优先则采用的是队列的形式, 即先进先出；
-
-```javascript
-// 构造一棵二叉树
-function BinTree(value, left, right) {
-    this.value = value;
-    this.left = left;
-    this.right = right;
-}
-
-// 注意构造节点的顺序是先构造子节点，再构造父节点。
-var node6 = new BinTree('6', '', '');
-var node5 = new BinTree('5', '', '');
-var node4 = new BinTree('4', '', '');
-var node3 = new BinTree('3', node6, '');
-var node2 = new BinTree('2', node4, node5);
-var node1 = new BinTree('1', node2, node3);
-
-function bfs(node) {
-    if (!node){
-        console.log("this is an empty tree");
-        return;
-    }
-    var que = [];
-    que.push(node);
-    // 当que数组非空的时候继续while循环
-    while(que.length){
-        // 注意是shift，从第一个元素开始打印
-        var tmpNode = que.shift();
-        console.log(tmpNode.value);
-        if (tmpNode.left) {
-            que.push(tmpNode.left);
-        }
-        if (tmpNode.right) {
-            que.push(tmpNode.right);
-        }
-    }
-}
-
-bfs(node1); // 1 2 3 4 5 6
-```
-
-## 12. 实现二叉树的深度优先搜索
-### 1) 递归实现
-```javascript
-// 构造一棵二叉树
-function BinTree(value, left, right) {
-    this.value = value;
-    this.left = left;
-    this.right = right;
-}
-
-// 注意构造节点的顺序是先构造子节点，再构造父节点。
-var node6 = new BinTree('6', '', '');
-var node5 = new BinTree('5', '', '');
-var node4 = new BinTree('4', '', '');
-var node3 = new BinTree('3', node6, '');
-var node2 = new BinTree('2', node4, node5);
-var node1 = new BinTree('1', node2, node3);
-
-// 递归实现
-function depSearch(node) {
-    if (!node){
-        console.log("this is an empty tree");
-        return;
-    }
-    var que = [];
-    que.push(node);
-    while(que.length) {
-        var tmpNode = que.pop();
-        console.log(tmpNode.value);
-        if(tmpNode.left) {
-            depSearch(tmpNode.left);
-        }
-        if (tmpNode.right) {
-            depSearch(tmpNode.right);
-        }
-    }
-}
-
-depSearch(node1); // 1 2 4 5 3 6
-
-// 非递归实现，构造二叉树的方式需要改改，带children的形式
-```
-
-## 13.ES6 模块与 CommonJS 模块的差异
+## 10.ES6 模块与 CommonJS 模块的差异
 * CommonJS 模块输出的是一个值的拷贝；ES6 模块输出的是值的引用；
 * CommonJS 模块是运行时加载；ES6 模块是编译时输出接口；
 * CommonJS 模块的顶层this指向当前模块；ES6 模块顶层的this指向undefined；
 * CommonJs 是单个值导出，ES6 Module可以导出多个；
 * CommonJs 是动态语法可以写在判断里，ES6 Module 静态语法只能写在顶层；
 
-## 14. VDOM 和真实 DOM 的区别和优化：
+## 11. VDOM 和真实 DOM 的区别和优化：
 * 虚拟 DOM 不会立马进行排版与重绘操作；
 * 虚拟 DOM 进行频繁修改，然后一次性比较并修改真实 DOM 中需要改的部分，最后在真实 DOM 中进行排版与重绘，减少过多DOM节点排版与重绘损耗；
 * 虚拟 DOM 有效降低大面积真实 DOM 的重绘与排版，因为最终与真实 DOM 比较差异，可以只渲染局部；
 
-## 15.安全性问题，常见的网站漏洞？
+## 12.安全性问题，常见的网站漏洞？
+https://mp.weixin.qq.com/s/Lxt0A69QFvQ-OYo1AoxGjg
+
 ### XSS(Cross Site Scripting)：跨站点脚本攻击，可理解为一种js代码注入的攻击方式。比如img的src属性是不受同源策略限制的。
 利用漏洞提交恶意 JavaScript 代码，比如在input, textarea等所有可能输入文本信息的区域，输入`<script src="http://恶意网站"></script>`等，提交后信息会存在服务器中，当用户再次打开网站请求到相应的数据，打开页面，恶意脚本就会将用户的 Cookie 信息等数据上传到黑客服务器。
+
+XSS攻击可以做什么事情？
+* 获取页面的数据，包括dom、cookies、localStorage等
+* 劫持前端逻辑
+* 发送请求
+
+XSS攻击的类型：
+* 反射型（非持久）：通过URL参数直接注入
+* 存储型（持久）：存储到数据库后读取时注入
+* 基于DOM：被执行的恶意脚本会修改页面脚本结构
+
+XSS注入的特点：
+* HTML的节点内容或属性
+* javascript代码
+* 富文本
 
 防止XSS攻击的技术：
 1. 转义、过滤内容（比如表单提交内容的过滤），前后端都需要处理这些过滤，达到双重保证。
    `<script>`转义成`&lt;script&gt;`
+2. 通过将数据进行JSON序列化
 
 
-### CSRF（Cross-Site Request Forgery）：跨站请求伪造
+### CSRF（Cross-Site Request Forgery）：跨站请求伪造（最大的特点是用户无感知）
 引诱用户打开黑客的网站，在黑客的网站中，利用用户的登录状态发起的跨站请求。
 
 `CSRF通常是跨域的`，因为外域通常更容易被攻击者掌控。但是如果本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险
@@ -757,14 +632,19 @@ GET类型的CSRF利用非常简单，只需要一个HTTP请求，一般会这样
 由于之前用户登录了信任的网站A，并且保存登录状态，只要用户主动访问上面的这个PHP页面，则表示攻击成功。
 
 解决方案：
-1. 阻止不明外域的访问
-   * 同源检测
-   * `Samesite Cookie`
+1. `增加验证码`：CSRF的一个特点是`伪造请求不经过网站A`，那么我们可以通过增加网站A的验证手段，例如`增加图形验证码或短信验证码`等，只有通过验证的请求才算合法。但是这种方案拥有两个局限性，一个是增加开发成本，另外一个是降低用户体验。
+2. `阻止不明外域的访问`：对于CSRF的第二个特点`伪造请求的域名不是网站A`，那么通过限制cookies不被其他域名网站使用，来达到防御的目的，具体的做法是：
+   * `Samesite Cookie：strict`
     `Samesite`标明这个 Cookie是个`“同站 Cookie”`，同站Cookie只能作为第一方Cookie，不能作为第三方Cookie，Samesite 有两个属性值，分别是 Strict 和 Lax
     `Samesite=Strict`：表明这个 Cookie 在任何情况下都不可能作为第三方 Cookie，绝无例外。
-2. 提交时要求附加本域才能获取的信息
-   * CSRF Token
-   * 双重Cookie验证
+   * `同源检测`（浏览器进行的同源检测）
+3. `尽量用post请求`，因为伪造post请求比伪造get请求难度大，比如伪造get请求直接打开一个url或者请求一个资源就可以伪造get请求。
+4. `验证referer`
+    第二个特点`伪造请求的域名不是网站A`同时会造成伪造请求的referer不是网站A，因此我们可以限制不信任的请求来源。具体做法是：
+    后端可以根据HTTP请求头的`referer`来判断请求是否来自可信任网站。但是这个方案也有局限性，攻击者可以设置请求不携带referer，所以这个方案适合用于辅助。
+5. `CSRF Token`：服务端随机生成token，保存在服务端session中，同时保存到客户端中，客户端发送请求时，把token带到HTTP请求头或参数中，服务端接收到请求，验证请求中的token与session中的是否一致。
+
+### 点击劫持
 
 ### SQL注入
 试图在目标网站使用的数据库上执行操作的攻击类型。通常是发送一个SQL请求，希望服务器能够执行。
@@ -773,7 +653,164 @@ GET类型的CSRF利用非常简单，只需要一个HTTP请求，一般会这样
 ### https中间人劫持
 
 
-## 事件循环机制、宏任务、微任务
+## 13.事件循环机制、宏任务、微任务
 https://juejin.im/post/59e85eebf265da430d571f89
 
-## 移动端适配
+## 14.移动端适配：https://juejin.im/post/5bfa99e0e51d4555557d26c6
+rem、em、%、vw、vh、vmax、vmin、vm、rpx
+
+`viewport`：
+`<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">`
+![](./imgs/viewport.jpg)
+
+`媒体查询`：通过媒体查询的方式，编写适应不同分辨率设备的的css样式
+```
+@media screen and (max-width: 320px){
+    ....适配iphone4的css样式
+}
+@media screen and (max-width: 375px){
+     ....适配iphone6/7/8的css样式
+}
+@media screen and (max-width: 414px){
+    ....适配iphone6/7/8 plus的css样式
+}
+......
+```
+
+
+## 15.实现一个sleep函数
+参考：https://es6.ruanyifeng.com/#docs/async
+```javascript
+function sleep(interval) {
+  return new Promise(resolve => {
+    // 通过setTimeout等待一段时间后再resolve结果实现休眠的效果
+    setTimeout(resolve, interval);
+  })
+}
+
+// 用法
+async function one2FiveInAsync() {
+  for(let i = 1; i <= 5; i++) {
+    console.log(i);
+    await sleep(2000);
+  }
+}
+
+one2FiveInAsync(); // 每隔两秒输出值，1 2 3 4 5
+```
+
+## 16.实现请求重试的方式？
+
+使用`try...catch`结构，实现多次重复尝试。
+```javascript
+const superagent = require('superagent');
+const NUM_RETRIES = 3;
+
+async function test() {
+  let i;
+  for (i = 0; i < NUM_RETRIES; ++i) {
+    try {
+      await superagent.get('http://google.com/this-throws-an-error');
+      break;
+    } catch(err) {}
+  }
+  console.log(i); // 3
+}
+
+test();
+```
+上面代码中，如果`await`操作成功，就会使用`break`语句退出循环；如果失败，会被`catch`语句捕捉，然后进入下一轮循环。
+
+## 17.如何触发await后面的多个异步操作？
+对于多个await命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
+
+```javascript
+// 写法一
+let [foo, bar] = await Promise.all([getFoo(), getBar()]);
+
+// 写法二
+let fooPromise = getFoo();
+let barPromise = getBar();
+let foo = await fooPromise;
+let bar = await barPromise;
+```
+上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
+
+
+## 通过async/await改造Promise.all，遇到reject也会返回，同Promise.allSettled()
+```javascript
+const p1 = Promise.reject('failed')
+const p2 = Promise.resolve('success')
+const p3 = Promise.resolve('success')
+
+promiseArr = [p1, p2, p3];
+async function asyncAll(){
+    let resArr = [];
+    let res = null;
+    for(let p of promiseArr){
+        try {
+            res = await p;
+        }
+        catch(err){
+            res = err;
+        }
+        resArr.push(res);
+    }
+    return resArr;
+}
+```
+
+## 用异步实现每隔1s输出一个值
+async/await
+```javascript
+function sleep(){
+    return new Promise((r, j) => {
+        setTimeout(resolve, 1000);
+    })
+}
+async function print(){
+    for (let i = 0; i < 6; i++){
+        await sleep();
+        console.log(i);
+    }
+}
+print();
+```
+let作用域
+```javascript
+function print(){
+    for (let i=0; i<5; i++) {
+        // 注意这里的执行时间间隔需要1000*1，因为setTimeout都是异步队列，在执行的时候都是依次放入任务队列，不会立即执行
+        // 当执行的时候，如果设置的是1000，则会一起输出，不会每隔1s输出。
+        setTimeout(() => console.log(i), 1000 * i);
+    }
+}
+print();
+```
+es5 var + 闭包
+```javascript
+function print(){
+    for (var i=0; i<5; i++) {
+        (function(i){
+            setTimeout(() => console.log(i), 1000*i)
+        })(i)
+    }
+}
+print();
+```
+
+setInterval
+```javascript
+function print(num, time) {
+  var i = 0;
+  var fn = setInterval(function () {
+    console.log(i++);
+    if (i >= num) {
+        // 注意这里需要清空计时器 
+        clearInterval(fn);
+    }
+  }, time * 1000);
+}
+print(5, 2);
+```
+

@@ -53,7 +53,7 @@ typeof null === 'object'; // true
 a. 如果定义的变量在将来用于保存对象，那么最好将该变量初始化为null，而不是其他值。
 b. 当一个数据不再需要使用时，我们最好通过将其值设置为null来释放其引用，这个做法叫做解除引用。
 
-*扩展*：解除引用
+**扩展**：解除引用
 1. 解除引用的真正作用是让值脱离执行环境，以便垃圾收集器在下次运行时将其回收。
 2. 解除引用还有助于消除有可能出现的循环引用的情况。这一做法适用于大多数全局变量和全局对象的属性，局部变量会在它们离开执行环境时(函数执行完时)自动被解除引用。
 
@@ -196,10 +196,74 @@ https://juejin.im/post/5ccfccaff265da03ab233bf5
 ![](./imgs/browsercache3.jpg)
 `200 (form memory cache)`: 不访问服务器，一般已经加载过该资源且缓存在了内存当中，直接从内存中读取缓存。浏览器关闭后，数据将不存在（资源被释放掉了），再次打开相同的页面时，不会出现from memory cache。
 `200 (from disk cache)`： 不访问服务器，已经在之前的某个时间加载过该资源，直接从硬盘中读取缓存，关闭浏览器后，数据依然存在，此资源不会随着该页面的关闭而释放掉下次打开仍然会是from disk cache。
+`header`头参数：
+* `Expires`：过期时间，如果设置了时间，则浏览器会在设置的时间内直接读取缓存，不再请求。
+* `Cache-Control`：当值设为`max-age=300`时，则代表在这个请求正确返回时间（浏览器也会记录下来）的5分钟内再次加载资源，就会命中强缓存。
+  `cache-control`常用值设置：
+  （1）`max-age`：用来设置资源（representations）可以被缓存多长时间，单位为秒；
+  （2）`s-maxage`：和max-age是一样的，不过它只针对代理服务器缓存而言；
+  （3）`public`：指示响应可被任何缓存区缓存；
+  （4）`private`：只能针对个人用户，而不能被代理服务器缓存；
+
+**注意：**区分强制缓存和协商缓存是根据`cache-control`的以下取值来区分的：
+  （5）`no-cache`（协商缓存）：强制客户端直接向服务器发送请求，也就是说每次请求都必须向服务器发送。服务器接收到请求，然后判断资源是否变更，是则返回新内容，否则返回304，未变更。这个很容易让人产生误解，使人误以为是响应不被缓存。实际上`Cache-Control: no-cache`是会被缓存的，只不过每次在向客户端（浏览器）提供响应数据时，缓存都要向服务器评估缓存响应的有效性。即协商缓存。
+  （6）`no-store`(强制缓存)：禁止一切缓存（这个才是响应不被缓存的意思）。
 
 优先访问`memory cache`，其次是`disk cache`，最后是请求网络资源。
 
 `协商缓存`：浏览器会向服务器发送请求，服务器会根据这个请求的`request header`的一些参数来判断是否命中协商缓存，如果命中（即浏览器缓存的资源没有更新），则返回`304`状态码并带上新的`response header`通知浏览器从缓存中读取资源；如果判断的结果是缓存的资源更新了，则会返回`200 OK`，将新的资源返回给浏览器。
+`header`头参数：
+`Last-Modifed/If-Modified-Since`和`Etag/If-None-Match`是分别成对出现的，呈一一对应关系。
+`Last-Modified`：浏览器向服务器发送资源最后的修改时间
+`If-Modified-Since`：当资源过期时（浏览器判断Cache-Control标识的max-age过期），发现响应头具有`Last-Modified`声明，则再次向服务器请求时带上头`if-modified-since`表示请求时间。服务器收到请求后发现有`if-modified-since`则与被请求资源的最后修改时间进行对比（`Last-Modified`）,若最后修改时间较新（大），说明资源又被改过，则返回最新资源，HTTP 200 OK;若最后修改时间较旧（小），说明资源无新修改，响应HTTP 304 走缓存。
+
+## HTML5的离线缓存
+https://mp.weixin.qq.com/s/Q-Z8kYWSUJpkpAkTBv1Igw?
+
+### 离线缓存和浏览器缓存的区别
 
 ## 为什么要初始化 CSS 样式
 因为浏览器的兼容问题，不同浏览器对有些标签的默认值是不同的，如果没对CSS初始化往往会出现浏览器之间的页面显示差异。比如浏览器默认的字体大小有16px的有14px的。
+
+## 如何做图片的上传和预览？
+1. 通过接口缓存，返回图片地址预览；
+2. 通过转成base64缓存在本地，这样有个问题就是base64的文件比较大；
+3. 利用html5新增的`fileReader`api：https://wiki.developer.mozilla.org/zh-CN/docs/Web/API/FileReader
+
+## for...of for...in Object.keys()遍历对象的属性？
+`Object.keys()`：对象自身可枚举的属性，非继承的属性（即不包括原型链上的属性）
+`for...in`：可遍历自身和继承的可枚举属性（即包括原型链上的属性）。（Symbol类型的可枚举属性被迭代的对象是遍历不到的）
+`for...of`：可遍历`Symbol`类型的对象属性
+
+https://mp.weixin.qq.com/s/mMXRsg-sNwxsXwk07Z4FIA
+
+
+## 关于window中的一些高度、宽度等的概念
+一个页面的展示，从外到内的容器：屏幕 -> 浏览器 -> 页面
+HTML元素展现在页面内，页面展现在浏览器内，而浏览器展现在屏幕内。
+### 整体展示：
+![](./imgs/wh1.jpg)
+
+### 屏幕信息：
+![](./imgs/screeninfo.jpg)
+`screen.height`：屏幕高度。
+`screen.width`：屏幕宽度。
+`screen.availHeight`：屏幕可用高度。即屏幕高度减去上下任务栏后的高度，可表示为软件最大化时的高度。
+`screen.availWidth`：屏幕可用宽度。即屏幕宽度减去左右任务栏后的宽度，可表示为软件最大化时的宽度。
+`任务栏高/宽度` ：可通过屏幕高/宽度 减去 屏幕可用高/宽度得出。如：`任务栏高度 = screen.height - screen.availHeight`。
+
+### 浏览器信息
+![](./imgs/browserinfo.jpg)
+`window.outerHeight`：浏览器高度。
+`window.outerWidth`：浏览器宽度。
+`window.innerHeight`：浏览器内页面可用高度；此高度包含了水平滚动条的高度(若存在)。可表示为：浏览器当前高度去除浏览器边框、工具条后的高度。
+`window.innerWidth`：浏览器内页面可用宽度；此宽度包含了垂直滚动条的宽度(若存在)。可表示为：浏览器当前宽度去除浏览器边框后的宽度。
+`工具栏高/宽度`：包含了地址栏、书签栏、浏览器边框等范围。如：高度，可通过浏览器高度 - 页面可用高度得出，即：`window.outerHeight - window.innerHeight`。
+
+### 页面信息
+![](./imgs/pageinfo.jpg)
+`body.offsetHeight`：body总高度。
+`body.offsetWidth`：body总宽度。
+`body.clientHeight`：body展示的高度；表示body在浏览器内显示的区域高度。
+`body.clientWidth`：body展示的宽度；表示body在浏览器内显示的区域宽度。
+`滚动条高度/宽度`：如高度，可通过浏览器内页面可用高度 - body展示高度得出，即`window.innerHeight - body.clientHeight`。
