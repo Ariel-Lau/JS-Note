@@ -1,3 +1,4 @@
+// 手写promise
 class MyPromise() {
     // 构造器
     constructor(executor) {
