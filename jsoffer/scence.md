@@ -1045,7 +1045,7 @@ function notify (cacheKey, value) {
 https://www.zhuwenlong.com/blog/article/5937f6c85bc74f66e8fc9a53
 正则匹配，replace
 ```javascript
- // 将金额转换成千分位表示
+// 将金额转换成千分位表示
 milleMoney(element) {
     let milleNum;
     let reg = /(\d{1,3})(?=(\d{3})+$)/g;
@@ -1064,7 +1064,7 @@ milleMoney(element) {
 ```
 
 ```javascript
-// 正则解释：整个正则匹配的内容是''，捕获的第二个分组表达式是每三位的数字，所以直接将每三位数字之前的空字符替换成 ","
+// 正则解释：整个正则匹配的内容是''，捕获的第二个分组表达式是每三位的数字，且每三位数字不是字符串的开头，所以直接将每三位数字之前的空字符替换成 ","
 num.toString().replace(/(?!^)(?=(\d{3})+\.)/g, ",");
 ```
 
@@ -1109,7 +1109,6 @@ function debounce(fn, delay, imme) => {
             fn(...args);
         }
         clearTimeout(timer);
-        timer = null;
         timer = setTimeout(args => {
             fn(...args);
             timer = null;

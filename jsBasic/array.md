@@ -150,6 +150,8 @@ arr4.flat(); // [1, 2, 4, 5]
 8. reduce
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
 
+reduce的高阶用法：https://juejin.im/post/5e44002c6fb9a07c9f3fd135#heading-21
+
 * 用reduce将二维数组转化成一维数组
   注意：这种方式只能将二维数组转成一维数组，不能将三维、四维等更深层次的数组转为一维数组
 

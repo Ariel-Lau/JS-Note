@@ -392,6 +392,7 @@ function depSearch(node) {
     var que = [];
     que.push(node);
     while(que.length) {
+        // 从最后一个元素输出
         var tmpNode = que.pop();
         console.log(tmpNode.value);
         if(tmpNode.left) {
@@ -406,4 +407,39 @@ function depSearch(node) {
 depSearch(node1); // 1 2 4 5 3 6
 
 // 非递归实现，构造二叉树的方式需要改改，带children的形式
+```
+
+## 8. 洗牌算法 ——> 给一个数组随机调整数组中的元素顺序，随机排列数组内的元素
+http://www.fly63.com/article/detial/5005
+
+```javascript
+// 洗牌算法：时间复杂度：O(n)
+// 思路：http://www.fly63.com/article/detial/5005
+// 从最后一个元素开始随机和其他元素交换顺序
+// 方法1：直接在原数组上交换元素的顺序
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        // 注意这里随机的数要用Math.floor()取整，
+        let swapIdx = Math.floor(Math.random() * (i - 1));
+        // 使用解构来交换两个元素的顺序
+        [arr[i], arr[swapIdx]] = [arr[swapIdx], arr[i]];
+    }
+}
+
+let arr = [1, 2, 3, 4, 5, 6];
+shuffle(arr);
+console.log(arr); // 随机顺序 [4, 6, 1, 5, 2, 3]
+
+// 方法2：开辟新的数组空间
+function shuffle(arr) {
+    let newArr = [];
+    while (arr.length) {
+        let swapIdx = Math.floor(Math.random() * (arr.length - 1));
+        // 注意splice返回的是一个数组，所以获取数组元素需要通过[0]获取到具体的元素
+        newArr.push(arr.splice(swapIdx, 1)[0]);
+    }
+    return newArr;
+}
+
+console.log(shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])); // (9) [1, 3, 5, 6, 7, 4, 8, 2, 9]
 ```

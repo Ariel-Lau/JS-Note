@@ -14,7 +14,7 @@ https://mp.weixin.qq.com/s?__biz=Mzg2NTA4NTIwNA==&mid=2247484468&idx=1&sn=3c3099
 
 ### 父子组件的通信
 1. `props & event ($emit、$on)`
-2. `ref`：ref 特性可以为子组件赋予一个 ID 引用，通过这个 ID 引用可以直接访问这个子组件的实例。当父组件中需要主动获取子组件中的数据或者方法时，可以使用 $ref 来获取。
+2. `ref`：ref 特性可以为子组件赋予一个 ID 引用，通过这个 ID 引用可以直接访问这个子组件的实例。当父组件中需要主动获取子组件中的数据或者方法时，可以使用 `$ref` 来获取。
   使用`$ref`时需要注意的点：
   * `$refs` 是作为渲染结果被创建的，所以在初始渲染的时候它还不存在，此时无法无法访问。
   * `$refs` 不是响应式的，只能拿到获取它的那一刻子组件实例的状态，所以要避免在模板和计算属性中使用它。
@@ -177,7 +177,7 @@ methods: {
 * `methods和computed最大的区别`如下：
   * `computed计算属性`是`基于它们的依赖进行缓存的`。<font color="red">（1）进行多次访问的时候（在不改变值的情况下），计算属性会立即返回之前缓存的计算结果，而不必再次执行函数；（2）并且computed还可以自动执行；（3）计算属性只有在它的相关依赖发生改变时才会重新求值</font>
   * `methods`<font color="red">只要发生重新渲染，就必定执行该函数（在HTML插值写法中，如上代码），`methods`必须有一定的触发条件才能执行。</font>
-  * computed是属性调用，methods是函数调用
+  * computed是<font color="red">属性调用</font>，methods是<font color="red">函数调用</font>
 
 * 为什么需要缓存？
   比如有多个HTML插值写法的页面上，对某一个计算属性A用到了多次，对methods中的某个方法也用到了多次，这时，计算属性A只会计算一次，其它地方取值直接将之前计算的缓存值立即返回。但是methods中的方法每次插值都会被调用，这样导致较大的内存资源浪费，每次取值都需要执行一遍methods方法中的同样的逻辑，重复执行同样的代码逻辑。
@@ -193,7 +193,7 @@ methods: {
     <p>Reversed message: "{{reversedMessage()}}"</p>
   ```
 
-**注意：** Props、data、methods、computed的初始化都是在beforeCreated和created之间完成的。
+**注意：** Props、data、methods、computed的初始化都是在beforeCreated和created之间完成的。所以最早可以使用`Props、data、methods、computed`的时机（生命周期）是created。
 
 ### 计算属性(computed) vs 侦听属性(watch)
 * `computed`属性默认只有`getter`，没有`setter`，可以手动添加`setter`
@@ -208,6 +208,7 @@ https://juejin.im/post/5e8064c551882573a13777e2
 
 ## Vue的生命周期
 参考：https://juejin.im/post/5e8c8d43e51d454714426c92
+![](./imgs/vuelifecycle.jpg)
 
 1. `beforeCreate`
   beforeCreate在执行的时候，data还没有被初始化，DOM也没有初始化，所以不能在这里发起异步请求并且不能给数据模型的属性赋值。
@@ -217,6 +218,7 @@ https://juejin.im/post/5e8064c551882573a13777e2
 2. `created`：created被执行的时候数据模型下的val已经完成了初始化工作，但是页面DOM依旧不能获取到。说明在created里，可以发起异步请求进行数据模型的赋值操作，但是不能做页面DOM的操作。
   * 初始化注入&校验
   * 初始化数据模型 
+  * `此时data和methods已经初始化完成`、`watcher`
 3. `beforeMount`：`beforeMount`与`created`之间只有一个是否是浏览器的判断，所以这时候在钩子函数中的数据模型、页面的状态，`与created是一样的`。
 4. `mounted`：mounted被执行到的时候，`数据模型和页面的DOM都初始化完成`，`可以给数据模型赋值也可以进行DOM操作了`。
   mounted怎么挂载DOM的？  `vm.$el = el`
@@ -236,6 +238,22 @@ https://juejin.im/post/5e8064c551882573a13777e2
 Ajax请求应该`放在created钩子函数`是最好的，这时候数据模型data已经初始化好了。
 如果放在beforeCreate函数里，这时候data还没有初始化，无法将获取到的数据赋值给数据模型。
 如果放在mounted里，这时候页面结构已经完成，如果获取的数据与页面结构无联系的话，这个阶段是略微有点迟的。
+
+### Vue 的父组件和子组件生命周期钩子函数执行顺序？
+加载渲染过程
+父 beforeCreate -> 父 created -> 父 beforeMount -> 子 beforeCreate -> 子 created -> 子 beforeMount -> 子 mounted -> 父 mounted
+
+
+子组件更新过程
+父 beforeUpdate -> 子 beforeUpdate -> 子 updated -> 父 updated
+
+
+父组件更新过程
+父 beforeUpdate -> 父 updated
+
+
+销毁过程
+父 beforeDestroy -> 子 beforeDestroy -> 子 destroyed -> 父 destroyed
 
 ### Vue中key的作用？
 key为了更高效的更新VDOM，通过复用已有的DOM节点来完成DOM的更新。
@@ -260,3 +278,23 @@ key为了更高效的更新VDOM，通过复用已有的DOM节点来完成DOM的�
 1. 每个Vue文件都将对应一个唯一的id，该id可以根据文件路径名和内容hash生成
 2. 编译template标签时为每个标签添加了当前组件的id，如`<div class="demo"></div>`会被编译成`<div class="demo" data-v-27e4e96e></div>`
 3. 编译`style`标签时，会根据当前组件的id通过属性选择器和组合选择器输出样式，如`.demo{color: red;}`会被编译成`.demo[data-v-27e4e96e]{color: red;}`
+
+### v-for 和 v-if的优先级？
+`v-for > v-if`
+
+### vue-router中params和query的区别
+1. params：路径参数，用来定义动态路由参数；
+```javascript
+routes: [
+    // 动态路径参数 以冒号开头
+    { path: '/user/:id', component: User }
+  ]
+```
+像 `/user/foo` 和 `/user/bar` 都将映射到相同的路由。
+
+2. query：查询参数，用来传参数，url中?后面的查询参数；
+
+### hash和history的区别？
+vue-router 默认 hash 模式 —— 使用 URL 的 hash 来模拟一个完整的 URL，`于是当 URL 改变时，页面不会重新加载`。链接如：`http://yoursite.com/user#id`
+如果不想要很丑的 hash，我们可以用路由的 history 模式，这种模式充分利用 history.pushState API 来完成 URL 跳转而无须重新加载页面。
+当你使用 history 模式时，URL 就像正常的 url，例如 `http://yoursite.com/user/id`，也好看！

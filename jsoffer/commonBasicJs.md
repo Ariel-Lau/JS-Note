@@ -78,6 +78,13 @@ console.log(null === undefined); // false
 
 ## 移动端300ms延迟
 移动端的点击事件的有延迟，时间是多久，为什么会有？怎么解决这个延时？
+https://juejin.im/post/5ce764a2f265da1b8c19645a
+
+问题原因：移动浏览器 会在 `touchend` 和 `click` 事件之间，等待 `300ms - 350ms`，判断用户是否会进行双击手势用以缩放文字。
+怎么解决：
+1. 可以通过设置`viewport`来处理禁止缩放：`content="user-scalable=no"`
+   `<meta name="viewport" content="user-scalable=no"/>`
+
 
 ## 进程和线程
 进程：在操作系统上打开一个软件，跑软件的时候软件代码会开启一个进程，一个软件跑起来至少会有一个进程，进程和进程之间是相互隔离的（比如某个应用程序挂掉了，不会影响其它应用程序），资源不共享。查看进程可以用进程管理器（资源管理器windows）查看，比如mac上可以打开activity monitor查看都有哪些进程，进程级别的管理。
@@ -237,33 +244,146 @@ https://mp.weixin.qq.com/s/Q-Z8kYWSUJpkpAkTBv1Igw?
 
 https://mp.weixin.qq.com/s/mMXRsg-sNwxsXwk07Z4FIA
 
+## 判断一个变量是否是数组？
+1. `Array.isArray(arr)`
+2. `Object.prototype.toString.call(arr) === '[Object Array]'`
+3. `arr instanceof Array`
+4. `array.constructor === Array`
 
-## 关于window中的一些高度、宽度等的概念
-一个页面的展示，从外到内的容器：屏幕 -> 浏览器 -> 页面
-HTML元素展现在页面内，页面展现在浏览器内，而浏览器展现在屏幕内。
-### 整体展示：
-![](./imgs/wh1.jpg)
+## 什么是函数作用域？
+函数作用域的含义是指，属于这个函数的全部变量都可以在整个函数的范围内使用及复用。
 
-### 屏幕信息：
-![](./imgs/screeninfo.jpg)
-`screen.height`：屏幕高度。
-`screen.width`：屏幕宽度。
-`screen.availHeight`：屏幕可用高度。即屏幕高度减去上下任务栏后的高度，可表示为软件最大化时的高度。
-`screen.availWidth`：屏幕可用宽度。即屏幕宽度减去左右任务栏后的宽度，可表示为软件最大化时的宽度。
-`任务栏高/宽度` ：可通过屏幕高/宽度 减去 屏幕可用高/宽度得出。如：`任务栏高度 = screen.height - screen.availHeight`。
+## js执行上下文 
+js的可执行代码：`全局代码`、`函数代码`、`eval代码`
 
-### 浏览器信息
-![](./imgs/browserinfo.jpg)
-`window.outerHeight`：浏览器高度。
-`window.outerWidth`：浏览器宽度。
-`window.innerHeight`：浏览器内页面可用高度；此高度包含了水平滚动条的高度(若存在)。可表示为：浏览器当前高度去除浏览器边框、工具条后的高度。
-`window.innerWidth`：浏览器内页面可用宽度；此宽度包含了垂直滚动条的宽度(若存在)。可表示为：浏览器当前宽度去除浏览器边框后的宽度。
-`工具栏高/宽度`：包含了地址栏、书签栏、浏览器边框等范围。如：高度，可通过浏览器高度 - 页面可用高度得出，即：`window.outerHeight - window.innerHeight`。
+当执行到一个函数的时候，就会进行准备工作，这里的“准备工作”，让我们用个更专业一点的说法，就叫做"执行上下文(execution contexts)"
 
-### 页面信息
-![](./imgs/pageinfo.jpg)
-`body.offsetHeight`：body总高度。
-`body.offsetWidth`：body总宽度。
-`body.clientHeight`：body展示的高度；表示body在浏览器内显示的区域高度。
-`body.clientWidth`：body展示的宽度；表示body在浏览器内显示的区域宽度。
-`滚动条高度/宽度`：如高度，可通过浏览器内页面可用高度 - body展示高度得出，即`window.innerHeight - body.clientHeight`。
+### js执行上下文类型包括：
+* 全局执行上下文： 这是默认的、最基础的执行上下文。不在任何函数中的代码都位于全局执行上下文中。（执行上下文的栈底永远会有一个全局执行上下文）
+  它做了两件事：
+  1. 创建一个全局对象，在浏览器中这个全局对象就是 window 对象。
+  2. 将 this 指针指向这个全局对象。
+  注意：一个程序中只能存在一个全局执行上下文。
+* 函数执行上下文： 每次调用函数时，都会为该函数创建一个新的执行上下文。
+  1. 每个函数都拥有自己的执行上下文，`但是只有在函数被调用的时候才会被创建`；
+  2. 一个程序中可以存在任意数量的函数执行上下文；
+  3. 每当一个新的执行上下文被创建，它都会按照特定的顺序执行一系列步骤。
+  4. 当执行一个函数的时候，就会创建一个执行上下文，并且压入执行上下文栈，当函数执行完毕的时候，就会将函数的执行上下文从栈中弹出。
+* Eval函数执行上下文： 运行在 eval 函数中的代码也获得了自己的执行上下文。
+
+## 常用的linux命令有哪些？
+https://mp.weixin.qq.com/s/LFftM9GAdqAH5myO3q3E0Q
+
+1. ls 命令 : 显示目录内容列表
+2. cd 命令 : 切换工作目录
+3. pwd 命令 : 显示工作目录
+4. rm 命令 : 删除文件/目录
+5. tail 命令 : 查看文件内容
+6. cat 命令 : 查看文件内容
+7. mv 命令 : 文件移动/改名
+8. mkdir 命令 : 创建目录
+9. rmdir 命令 : 删除空目录
+10. touch 命令 : 新建文件
+11. cp 命令 : 复制文件/目录
+12. which 命令 : 查找文件
+13. ping 命令 : 检测主机
+14. telnet 命令 : 端口是否可访问
+15. grep 命令 : 查找关键字
+16. | 命令 : 管道命令
+17. clear 命令 : 清除屏幕
+18. find 命令 : 查找文件
+
+## 小程序父子组件的通信
+1. 在父组件中可以通过设置子组件的`properties`来向子组件传递数据；
+2. 在`父组件中定义messages对象`，`对子组件dispatch方法进行拦截`，从而达到子组件向上通信；
+   父组件定义message对象，拦截子组件dispatch方法。
+3. 子组件可以通过`triggerEvent`方法触发父组件的自定义事件进行传参；
+4. 如果以上几种方式不足以满足需要，父组件还可以通过 `this.selectComponent` 方法获取子组件实例对象，这样就可以直接访问组件的任意数据和方法。
+
+## 小程序事件对象event包含的内容
+`type`	String	事件的类型
+`timeStamp`	Integer	事件触发的时间戳（毫秒）
+`target`	Object	触发事件的组件的属性值集合，详细属性参见 target
+`currentTarget`	Object	当前组件的一些属性值集合，详细属性参见 currentTarget
+`detail`	Object	自定义事件对象属性列表，详细属性参见 detail
+`touches`	Array	触摸事件类型存在，存放当前停留在屏幕中的触摸点信息的数组，touch 详细属性参见 touch
+`changedTouches`	Array	触摸事件类型存在，存放当前变化的触摸点信息的数组, changedTouch changedTouch
+
+## 小程序的运行机制
+https://smartprogram.baidu.com/docs/develop/framework/operating-environment/
+
+智能小程序运行在三端：`iOS`、`Android` 和 `用于调试的开发者工具`。
+三端的脚本执行环境以及用于渲染非原生组件的环境是各不相同的：
+`iOS`
+新版本，小程序的逻辑层的 js 代码运行在 `jscore` 中，视图层在 webview 中渲染。
+`Android`
+新版本，小程序的逻辑层的 js 代码运行在 `V8` 中，视图层基于自研的 T7 内核在 webview 渲染。
+`开发工具`
+小程序逻辑层的 js 代码是运行在 `electron` 中，视图层是由 `Chromium 59.0.3071.115 Webview` 来渲染的。
+## setData
+setData 函数用于将数据，从逻辑层发送到视图层，当开发者调用 setData 后，数据的变化会引起视图层的更新。
+
+https://smartprogram.baidu.com/docs/develop/framework/performance-tips/
+
+#### 为什么建议不要过于频繁调用setData，应考虑将多次setData合并成一次setData调用？
+setData方法是开发者通`逻辑层向视图层发送数据的方法`。<font color="red">每一次 setData 的调用，都会触发一次通信，而每一次的通信都会消耗一定的系统资源。</font>
+setData接口的调用涉及逻辑层与渲染层间的线程通信，通信过于频繁可能导致处理队列阻塞，界面渲染不及时而导致卡顿，应避免无用的频繁调用。
+
+#### 为什么小程序无法使用window、document
+框架本身并非运行在浏览器中，所以 JavaScript 在 Web 中的一些能力都无法使用，如 document , window 等，这会使得小程序应用更接近原生；
+框架中不可使用 window, document, location, navigator, localStorage, history等Web、浏览器 API。
+
+页面的脚本逻辑是在`JsCore`中运行，`JsCore是一个没有窗口对象的环境`，所以不能在脚本中使用window，也无法在脚本中操作组件
+
+
+## 字体图标和图片的区别？
+字体文件（字体图标）：
+优点：
+1. 优化效果好（轻量级）：由于图标字体体积更小而携带的信息并未削减，可大大减少HTTP请求。
+2. 灵活性更高：图标字体可以得到CSS的很好支持，大小和颜色都很容易用CSS控制。
+3. 兼容性更广：图标字体支持现代浏览器，甚至是低版本的IE浏览器，所以可以放心的使用它。 相比于位图放大图片会出现失真、缩小又会浪费掉像素点，图标字体不会出现这种情况。
+4. 显示效果佳：矢量图标字体与分辨率无关，无论屏幕PPI高或低，显示效果俱佳。
+
+缺点：
+1. 由于图标字体只能被渲染成单色或者CSS3的渐变色，使得它不能被广泛使用。
+2. 很多精美图标字体是收费的，不过精美开源的免费图标也越来越多，并提供下载使用。
+3. 自已创作图标字体费时费力，后期维护成本偏高。
+
+图片：一般北京通图片，img图片等都会用jpg、png的图片
+
+## 跨域
+https://juejin.im/post/5e948bbbf265da47f2561705?utm_source=gold_browser_extension
+
+## 如何实现两个变量的交换
+1. 通过一个临时变量交换；`let tmp = a; a = b; b = tmp;`
+2. es6结构： `[a, b] = [b, a]`
+3. 利用数组特性：
+  ```javascript
+  var a = 1, b = 2;
+  a = [a, b];
+  b = a[0];
+  a = a[1];
+  ```
+4. 算术运算：缺点：存在变量溢出问题。
+  ```javascript
+  let a = 5
+  let b = 4
+
+  // 接下来就是见证神奇的时刻，来，镜头请对准我。
+  // 二者之和
+  a = a + b
+  // 二者之和 - b的值，剩余a的值赋值给变量b
+  b = a - b
+  // 此刻a还是二者之和，a - b此刻相当于二者之和 - 变量b(a的值)，那么此刻剩余的就是变量b的值，赋值给a变量
+  a = a - b
+
+  // yes, we did!
+  console.log(a) // 4
+  console.log(b) // 5
+  ```
+
+## 如果在一个url后面直接拼参数会有什么问题，如：url + ? + key=value
+1. 不能直接加`?`拼接，因为url里可能已经带了参数；
+2. key可能存在覆盖的情况，如果url之前的参数已经有了key值，新加的key值会覆盖掉之前的key值；
+3. 参数需要转码
+4. url可能存在#hash的情况

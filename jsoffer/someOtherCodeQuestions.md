@@ -6,7 +6,7 @@
     //保存数据的对象
     args = {},
     //取得每一项
-    items = qs.length ? qs.length("&") : [], // ['name=mm', 'id=123', 'q=word']
+    items = qs.length ? qs.split("&") : [], // ['name=mm', 'id=123', 'q=word']
     item = null,
     name = null,
     value = null,
@@ -82,7 +82,11 @@ m.eachMap(
 );
 ```
 
-## 3. 写一个实现继承的方法
+## 3. 关于继承
+### es5的继承和es6的继承有什么区别？
+ES5 的继承，<font color="red">实质是先创造子类的实例对象this，然后再将父类的方法添加到this上面（Parent.apply(this)）。</font>
+ES6 的继承机制完全不同，<font color="red">实质是先将父类实例对象的属性和方法，加到this上面（所以必须先调用super方法），然后再用子类的构造函数修改this。</font>
+### 写一个实现继承的方法
 如果一个对象本身部署了__proto__属性，该属性的值就是对象的原型。
 实例对象有一个__proto__属性，指向该实例对象对应的原型对象。
 ### 继承（一）：采用原型链的概念实现继承
@@ -237,6 +241,9 @@ for (attr in b){
 }
 ```
 
+### 继承的其它方式
+https://mp.weixin.qq.com/s/u9STIk4zN-uY_qu2C4790A
+
 ## 4. 实现一个闭包
 参考mdn、closure.md
 ```javascript
@@ -252,6 +259,39 @@ var add10 = makeAdder(10);
 console.log(add5(2));  // 7
 console.log(add10(2)); // 12
 ```
+
+### 闭包的应用场景：
+1. 用闭包定义能访问私有函数和私有变量的公有函数
+   a. 共享的环境创建在一个匿名函数体内，立即执行。
+   b. 环境中有一个局部变量一个局部函数，通过匿名函数返回的对象的三个公共函数访问。
+```javascript
+    var counter = (function(){
+        var privateCounter = 0; // 私有变量
+        function change(val){
+            privateCounter += val;
+        }
+        return {
+            increment:function(){ // 三个闭包共享一个词法环境
+                change(1);
+            },
+            decrement:function(){
+                change(-1);
+            },
+            value:function(){
+                return privateCounter;
+            }
+        };
+    })();
+
+    console.log(counter.value()); // 0
+    counter.increment();
+    counter.increment(); // 2
+```
+2. 防抖、节流函数。
+3. es6中结合箭头函数经常写的闭包
+   ```javascript
+   const addX = x => n => n + x
+   ```
 
 ## 5. 找出数组中的最大值
 方法一：`Math.max.apply(null, arr)`
@@ -567,7 +607,7 @@ https://mp.weixin.qq.com/s/Lxt0A69QFvQ-OYo1AoxGjg
 利用漏洞提交恶意 JavaScript 代码，比如在input, textarea等所有可能输入文本信息的区域，输入`<script src="http://恶意网站"></script>`等，提交后信息会存在服务器中，当用户再次打开网站请求到相应的数据，打开页面，恶意脚本就会将用户的 Cookie 信息等数据上传到黑客服务器。
 
 XSS攻击可以做什么事情？
-* 获取页面的数据，包括dom、cookies、localStorage等
+* 获取页面的数据，包括`dom、cookies、localStorage`等
 * 劫持前端逻辑
 * 发送请求
 
@@ -652,31 +692,41 @@ GET类型的CSRF利用非常简单，只需要一个HTTP请求，一般会这样
 ### DNS劫持
 ### https中间人劫持
 
+## 13. 跨域
+1. `CORS`（跨域资源共享）：http的header头配置`Access-Control-Allow-Origin`
+2. `JSONP`：JSONP跨域只支持get请求
+3. `cookie：domain、httpOnly、sameSite`
+4. `window.postMessage(data, origin)`
+5. 在`webpack`中可以配置`devServer.proxy`来快速获得接口代理的能力。
+```javascript
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+module.exports = {
+    entry: {
+        index: "./index.js"  },
+        output: {
+            filename: "bundle.js", 
+            path: path.resolve(__dirname, "dist")  
+        },  
+        devServer: {    
+            port: 8000,    
+            proxy: {      
+                "/api": {        
+                    target: "http://localhost:8080"      
+                }    
+            } 
+        },  
+        plugins: [    
+            new HtmlWebpackPlugin({      
+                filename: "index.html",      
+                template: "webpack.html"   
+            })
+        ]};
+```
+6. `document.domain`：不同域之间的cookie共享，设置两个页面的document.domain一致之后在A页面种的cookie在B页面也可以访问到。
 
-## 13.事件循环机制、宏任务、微任务
+## 14.事件循环机制、宏任务、微任务
 https://juejin.im/post/59e85eebf265da430d571f89
-
-## 14.移动端适配：https://juejin.im/post/5bfa99e0e51d4555557d26c6
-rem、em、%、vw、vh、vmax、vmin、vm、rpx
-
-`viewport`：
-`<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">`
-![](./imgs/viewport.jpg)
-
-`媒体查询`：通过媒体查询的方式，编写适应不同分辨率设备的的css样式
-```
-@media screen and (max-width: 320px){
-    ....适配iphone4的css样式
-}
-@media screen and (max-width: 375px){
-     ....适配iphone6/7/8的css样式
-}
-@media screen and (max-width: 414px){
-    ....适配iphone6/7/8 plus的css样式
-}
-......
-```
-
 
 ## 15.实现一个sleep函数
 参考：https://es6.ruanyifeng.com/#docs/async
@@ -737,7 +787,7 @@ let bar = await barPromise;
 上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
 
 
-## 通过async/await改造Promise.all，遇到reject也会返回，同Promise.allSettled()
+## 18.通过async/await改造Promise.all，遇到reject也会返回，同Promise.allSettled()
 ```javascript
 const p1 = Promise.reject('failed')
 const p2 = Promise.resolve('success')
@@ -760,7 +810,7 @@ async function asyncAll(){
 }
 ```
 
-## 用异步实现每隔1s输出一个值
+## 19.用异步实现每隔1s输出一个值
 async/await
 ```javascript
 function sleep(){
@@ -814,3 +864,87 @@ function print(num, time) {
 print(5, 2);
 ```
 
+## 20. 斐波那切数列
+斐波那契数列：1、1、2、3、5、8、13、21、34......在数学上，斐波纳契数列以如下被以递归的方法定义：
+```javascript
+F(1)=1，
+F(2)=1, (n <= 2)
+F(n)=F(n-1)+F(n-2) (n>=2，n∈N*);
+```
+
+方法一： 递归实现
+```javascript
+function fib(n){
+    if(n <= 2){
+        return 1;
+    }
+    return fib(n-1) + fib(n-2);
+}
+fib(5)
+// 5
+fib(6)
+// 8
+fib(7)
+// 13
+```
+
+方法2：利用数组的`reduce`方法，返回整个斐波那契列表
+```javascript
+// 参数n默认为2
+function fibs(n = 2){
+    // 获取长度为n的数组的下标值
+    let arr = [...new Array(n).keys()]; // [0, 1, 2, 3, 4, .....]
+    let res = arr.reduce((last, value, idx) => {
+        // 当下标大于1时，开始执行前两项之和
+        idx > 1 ? last.push(last[idx - 1] + last[idx - 2]) : last.push(1);
+        return last;
+    }, []);
+    return res;
+}
+fibs(8); // (8) [1, 1, 2, 3, 5, 8, 13, 21]
+```
+
+## 21.用reduce实现数组的map方法
+```javascript
+var arr = [1, 2, 3, 4].reduce((last, v) => [...last, v * 2], []);
+```
+
+reduce代替filter
+```javascript
+const d = arr.reduce((t, v) => v > 1 ? [...t, v] : t, []);
+```
+
+## 22.实现多维数组的扁平化
+#### reduce实现数组的扁平化，非常简洁
+```javascript
+function Flat(arr = []) {
+    // 如果v是个数组，则继续递归
+    return arr.reduce((t, v) => t.concat(Array.isArray(v) ? Flat(v) : v), [])
+}
+var arr =[[[1, 'mm', [9, 6]]], [3, false]]
+Flat(arr); // (6) [1, "mm", 9, 6, 3, false]
+```
+
+## 23.实现字符串翻转
+```javascript
+// reduce无敌
+function ReverseStr(str = "") {
+    return str.split("").reduceRight((t, v) => t + v);
+}
+const str = "reduce最牛逼";
+ReverseStr(str); // "逼牛最ecuder"
+```
+
+```javascript
+str.split('').reverse().join('');
+```
+
+## 请从2017-05-15T09:10:23 Europe/Paris提取出结果["2017","05","15","09","10","23"]
+```javascript
+let str = '2017-05-15T09:10:23 Europe/Paris';
+let arr = str.match(/\d{1,}/g); 
+//match会返回一个数组，
+// \d 查找数字  
+// {1,} 表示至少重复几次 
+// /g表示全局搜索
+```
