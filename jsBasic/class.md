@@ -1,5 +1,5 @@
 ## es6的Class
-## class内部是严格模式，全局环境调用class内湖的方法时，this是undefined
+## class内部是严格模式，全局环境调用class内部的方法时，this是undefined
 ## class类不存在变量提升。
 和继承有关系，必须保证子类在父类之后定义。
 ```javascript

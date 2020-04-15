@@ -48,9 +48,9 @@
        }
        Number.prototype.add = add;
        Number.prototype.minus = minus;
-       // ['add', 'minus'].forEach(item => {
+        // ['add', 'minus'].forEach(item => {
           //  Number.prototype[item] = eval(item);
-      //  });
+        //  });
    })();
    console.log((5).add(3).minus(2));
    ```
@@ -176,34 +176,36 @@ f = Fn(); // window.x = 100;
 
 #### 箭头函数的几个注意点（es6入门）
 （1）函数体内的this对象，就是定义时所在的对象，而不是使用时所在的对象。
- 普通函数的this对象的指向是可变的，但是在箭头函数中，它是固定的，即是定义时所在的对象，使用call/apply/bind都改变不了箭头函数的this指向
- e.g:
- ```javascript
- function foo() {
-    setTimeout(() => {
-        console.log('id:', this.id);
-    }, 100);
- }
+普通函数的this对象的指向是可变的，但是在箭头函数中，它是固定的，即是定义时所在的对象，使用call/apply/bind都改变不了箭头函数的this指向
+e.g:
+箭头函数输出 42
+```javascript
+function foo() {
+setTimeout(() => {
+    console.log('id:', this.id);
+}, 100);
+}
 
- var id = 21;
+var id = 21;
 
- foo.call({ id: 42 }); // id: 42
- ```
+foo.call({ id: 42 }); // id: 42
+```
+上面代码中，setTimeout的参数是一个箭头函数，这个箭头函数的定义生效是在foo函数生成时，而它的真正执行要等到100ms后。
+但是，箭头函数导致this总是指向函数定义生效时所在的对象（本例是{id: 42}，因为普通函数foo被call绑定到了{id: 42}对象上），所以输出的是42。
 
- ```javascript
- function foo() {
-    setTimeout(function() {
-        console.log('id:', this.id); // this => window，this.id => window.id = 21
-    }, 100);
- }
+普通函数输出 21
+```javascript
+function foo() {
+setTimeout(function() {
+    console.log('id:', this.id); // this => window，this.id => window.id = 21
+}, 100);
+}
 
- var id = 21;
+var id = 21;
 
- foo.call({ id: 42 }); // 21
- ```
- 上面代码中，setTimeout的参数是一个箭头函数，这个箭头函数的定义生效是在foo函数生成时，而它的真正执行要等到100ms后。
- 如果是普通函数，执行时this应该指向全局对象window，这时应该输出21。
- 但是，箭头函数导致this总是指向函数定义生效时所在的对象（本例是{id: 42}，因为普通函数foo被call绑定到了{id: 42}对象上），所以输出的是42。
+foo.call({ id: 42 }); // 21
+```
+如果是普通函数，执行时this应该指向全局对象window，这时应该输出21。
 
 * 箭头函数可以改变setTimeout里的this：箭头函数可以让setTimeout里面的this，绑定定义时所在的作用域，而不是指向运行时所在的作用域。
 
@@ -219,12 +221,13 @@ f = Fn(); // window.x = 100;
 const cat = {
   lives: 9,
   jumps: () => {
-    this.lives--;
+    this.lives--; // 对象函数中的this指向全局，因为对象不构成单独的作用域，所以jumps箭头函数定义时所在的作用域就是全局作用域
   }
 }
 ```
 cat.jumps()方法是一个箭头函数，这是错误的。
 调用cat.jumps()时，如果是普通函数，该方法内部的this指向cat；
+
 如果写成上面那样的箭头函数，使得this指向全局对象，因此不会得到预期结果。这是因为<font color="red">对象不构成单独的作用域</font>，导致jumps箭头函数定义时的作用域就是全局作用域。
 
 * 需要动态this的时候，也不应使用箭头函数
@@ -246,6 +249,7 @@ button.addEventListener('click', () => {
 ```javascript
 let testStr = 'AbC测试！**HaHa';
 // 正则匹配字母：/[a-zA-Z]/g
+// 注意需要全局匹配g，如果没有g的话只会匹配第一个字符
 testStr = testStr.replace(/[a-zA-Z]/g, ele => {
     // ele: 每一项正则匹配的结果
     // 验证是否为大写字母：
@@ -275,10 +279,10 @@ function searchIndexOf(T) {
         return -1;
     }
     for(let i = 0; i < lenS - lenT + 1; i++) {
-s        // 判断截取的字符串和传入的字符串是否相等
+        // 判断截取的字符串和传入的字符串是否相等
         // 不用三元运算符，因为找到了就结束了，需要break，减少循环，优化性能，三元运算符不能break
         // res = this.substr(i, lenT) === T ? i : null;
-        if (this.substr(i, lenT) == T) {
+        if (this.substr(i, lenT) === T) {
             res = i;
             break;
         }
@@ -333,6 +337,7 @@ console.log(a[b]); // c a['123'] <=> a[123]
 let obj = {100: 'mm'}
 console.log(obj[100]); // mm
 console.log(obj['100']); // mm
+// 对象属性只能接收string和symbol类型，如果是其它类型会转成string类型，所以数字100会转成'100'，由于对象属性的key唯一，所以输出的是只有一个属性的对象{'100': 'haha'}
 let obj = {100: 'kk', '100': 'haha'};
 console.log(obj); // {'100': 'haha'}
 ```
@@ -365,7 +370,7 @@ console.log(a[b]); // 'c' 所以a[b] => a['object Object'] => 'c'
 
 // 1. 对象的属性名不能是一个对象（遇到对象属性名，会默认转换为字符串）
 // obj = {} arr = [12, 22] obj[arr]="测试" obj => {'12,22': '测试'}
-// 2. 普通对象.toString() 调取的是Object.prototype上的方法（这个方法是用来检测数据类型的）
+// 2. 普通对象.toString() 调取的是Object.prototype上的方法（这个方法是用来检测数据类型的），Object.prototype.toString()
 obj = {} obj.toString() => "[object Object]"
 obj[b]='b' => obj['[object Object]'] = 'b';
 ```
@@ -400,7 +405,7 @@ Foo.a(); // 1 调用构造函数中的Foo.a，输出1。执行new Foo()之后，
 // 1.协议：// http/https/ftp/...
 // 2.域名：www.baidu.com/xxx.cn/xxx.xxx.cn
 // 3.请求路径：index.html、stu/index.html
-// 4.问好传参：?xxx=xxx&xxx=xxx
+// 4.问号传参：?xxx=xxx&xxx=xxx
 // 5.哈希值：#xxx
 let str = 'https://www.baidu.com?world=js';
 // 协议部分：(?:(http|https|ftp):\/\/)?
@@ -521,6 +526,18 @@ console.log(str); // 'dc 测试 aaas +!! dw'
 2. for循环实现
 
 ### 13.编写一个程序，将数组扁平化，并去除其中重复部分数据，最终得到一个升序且不重复的数组
+
+#### reduce实现数组的扁平化，非常简洁
+```javascript
+// 参数arr默认是[]，否则不能直接用数组的reduce方法
+function Flat(arr = []) {
+    // 如果v是个数组，则继续递归
+    return arr.reduce((t, v) => t.concat(Array.isArray(v) ? Flat(v) : v), [])
+}
+var arr =[[[1, 'mm', [9, 6]]], [3, false]]
+Flat(arr); // (6) [1, "mm", 9, 6, 3, false]
+```
+
 ```javascript
 let arr = [[1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14]]]], 10];
 // 方法一：
@@ -603,6 +620,16 @@ Array.prototype.ownFlat = ownFlat;
 arr = arr.ownFlat();
 ```
 
+#### reduce实现数组的扁平化，非常简洁
+```javascript
+function Flat(arr = []) {
+    // 如果v是个数组，则继续递归
+    return arr.reduce((t, v) => t.concat(Array.isArray(v) ? Flat(v) : v), [])
+}
+var arr =[[[1, 'mm', [9, 6]]], [3, false]]
+Flat(arr); // (6) [1, "mm", 9, 6, 3, false]
+```
+
 #### 题目扩展mm：
 <font color="red">1.字符串去重</font>
 
@@ -620,6 +647,23 @@ js对象的特性：`在js对象中 key 是永远不会重复的`
     1.把数组转成一个js对象
     2.把数组中的值，变成js对象当中的key
     3.把对象再还原成数组
+
+第一种写法：
+```javascript
+// 利用对象属性唯一的特性实现数组去重
+function unique(arr) {
+    let obj = {};
+    for (let i of arr) {
+        obj[i] = true;
+    }
+    // 注意用Object.keys()返回无重复的数组时会出现元素顺序调整的情况，这个和Object.keys()遍历对象的属性顺序有关系
+    // 如果不想改变顺序的话可以用for in遍历对象的可枚举属性，但是需要注意用for in 来判断需要在判断下是否是对象自身的可枚举属性hasOwnProperty()
+    // for in遍历对象的可枚举属性，包括继承的可枚举属性
+    return Object.keys(obj);
+}
+console.log(unique(['m', 'm', 4, 8, 6, 4])); // ["4", "6", "8", "m"]
+```
+
 ```javascript
 // 1.把数组转成一个js对象
 function toObject(arr){
@@ -633,6 +677,7 @@ function toObject(arr){
 // 3.把这个对象转成数组
 function key(obj){
     var arr=[];
+    // 或者直接用Object.keys(obj)获取obj对象自身可枚举的属性
     for(var attr in obj){
         // 严谨：判断属性是否是obj对象自己的
         if(obj.hasOwnProperty(attr)){
@@ -709,15 +754,32 @@ un = Array.from(new Set(arr)); // [1, 2, 4, 3, 5]
 (4) 返回新对象。
 
 ```javascript
-function _new(Fn, ...arg) {
+function _new(Fn, ...args) {
     // let obj = {}; // 创建一个空对象，让他的原型链指向Fn.prototype(作为Fn的一个实例)
     // obj._proto_ = Fn.prototype;
     // 上面两行或者合并成下面这行代码
     // Object.created(A)：创建一个空对象obj，并且让空对象obj作为A对象所属构造函数的实例（obj._proto_=A），即将A作为obj对象的原型对象
-    let obj = Object.created(Fn.prototype);
-    Fn.call(obj, ...arg); // 代码执行
-    return obj; // 默认把创建的对象返回
-    
+    let obj = Object.create(Fn.prototype);
+    // Fn.call(obj, ...args); // 代码执行
+    // return obj; // 默认把创建的对象返回
+    // 注意对函数执行的结果需要单独处理，进行异常处理，比如函数执行结果返回的不是一个对象，如果是个字符串、数字应该返回什么？
+    let res = Fn.call(obj, ...args); // 代码执行
+    // 或者用 res instanceof Object ? res : obj;来判断也行
+    return typeof res === 'object' ? res : obj; // 如果函数的执行结果是一个对象，则直接把这个对象返回，否则返回构造的空对象。 
+}
+```
+
+终版
+```javascript
+function _new(){
+    // 获取到构造函数，即传入的第一个参数就是构造函数，其它都是传入构造函数中执行的参数，所以通过shift获取构造函数，且剩下的arguments就是需要传入构造函数的参数
+    let fn = [].shift.call(arguments);
+    let obj = Object.create(fn.prototype);
+    // 由于shift删掉了低于个参数fn，改变了arguments，所以arguments剩下的参数都是需要传入构造函数中执行的。
+    let res = fn.apply(obj, arguments);
+    // 注意对函数执行的结果需要单独处理，进行异常处理，比如函数执行结果返回的不是一个对象，如果是个字符串、数字应该返回什么？
+    // return typeof res === 'object' ? res : obj;
+    return res instanceof Object ? res : obj;
 }
 ```
 
@@ -809,7 +871,7 @@ for (var i = 0; i < 10; i++) {
 }
 ```
 
-如果要输出1，2，3，4...
+如果要输出1，2，3，4...应该怎么修改？
 
 ```javascript
 // 方法1：利用let的块级作用域
@@ -990,12 +1052,12 @@ if (a == 1 && a == 2 && a == 3) {
 知识点铺垫：
     `==` 进行比较的时候，如果左右两边数据类型不一样，则先转换为相同的数据类型，然后再进行比较
     1. `{} == {}`两个对象进行比较，比较的是堆内存的地址 
-    2. `null == undefined // true`
+    2. `null == undefined // true`：Boolean(null) === false; Boolean(undefined) === false => null == undefined
        `null === undefined // false`
     3. `NaN == NaN // false` NaN和谁都不相等
     4. `[12] == '12'` 对象(数组也是对象)和字符串比较，是把对象toString()转换为字符串后再进行比较的
     5. 剩余所有情况在进行比较的时候，都是转换为数字（前提：数据类型不一样）
-        （1）对象转数字：先转换为字符串，然后再转换为数字；
+        （1）对象转数字：先转换为字符串，然后再转换为数字；对象转成字符串是`'[object Object]'` -> 转成数字`NaN`
         （2）字符串转数字：只要出现一个非数字字符，结果就是NaN;
         （3）布尔转数字：`true -> 1 false -> 0`
         （4）null转数字0； `Number(null) => 0;`
@@ -1323,7 +1385,7 @@ document.body.onclick = function (e) {
     function myBind(context = window, ...outerArg) {
         let that = this;
         return function(...innerArg) {
-            that.apply(context, outerArg.concat(innerArg));
+            // that.apply(context, outerArg.concat(innerArg));
             that.call(context, ...outerArg.concat(innerArg));
         }
     }

@@ -79,7 +79,7 @@ console.log(arr1); // [1, 2]
 
 5. concat
 **浅拷贝**
-* concat不会改变this或任何作为参参数提供的数组，而是返回一个浅拷贝，包含与原始数组相结合的相同元素的副本。 原始数组的元素将复制到新数组中。
+* concat不会改变this或任何作为参数提供的数组，而是返回一个浅拷贝，包含与原始数组相结合的相同元素的副本。 原始数组的元素将复制到新数组中。
 
 ```javascript
 > var arr = [1,2,3]
@@ -104,7 +104,7 @@ undefined
 [].concat(1, 2, [3, 4]); // [1, 2, 3, 4]
 ```
 
-6. Array.prototype.entries()，返回一个Array迭代器对象，该迭代器对象上有一个next方法，可用用于遍历迭代器取得原数组的[key,value]，如下：
+6. Array.prototype.entries()，返回一个Array迭代器对象，该迭代器对象上有一个next方法，可用于遍历迭代器取得原数组的[key,value]，如下：
 
 ```javascript
 > var iter = ['m', 'l', 'y'].entries();
@@ -149,6 +149,8 @@ arr4.flat(); // [1, 2, 4, 5]
 
 8. reduce
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+
+reduce的高阶用法：https://juejin.im/post/5e44002c6fb9a07c9f3fd135#heading-21
 
 * 用reduce将二维数组转化成一维数组
   注意：这种方式只能将二维数组转成一维数组，不能将三维、四维等更深层次的数组转为一维数组

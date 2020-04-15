@@ -156,7 +156,7 @@ fn();
 console.log(2); // 同步任务
 // 1 2 3 4
 ```
-如果 await 右侧表达逻辑是个 promise，await会等待这个promise的返回结果，只有返回的状态是resolve的情况，才会把结果返回,如果promise是失败状态，则await不会接收其返回结果，await下面的代码也不会在继续执行。
+如果 await 右侧表达逻辑是个 promise，await会等待这个promise的返回结果，只有返回的状态是resolve的情况，才会把结果返回，如果promise是失败状态，则await不会接收其返回结果，await下面的代码也不会在继续执行。
 
 ```javascript
 let p1 = Promise.reject(100);
@@ -426,14 +426,14 @@ class MyPromise(){
       if(this.state === 'pending'){
         this.state = 'fulfilled';
         this.value = value;
-        this.onResolvedCbs.forEach(fn => fn);
+        this.onResolvedCbs.forEach(fn => fn());
       }
     };
     let reject = reason => {
       if(this.state === 'pending'){
         this.state = 'rejected';
         this.reason = reason;
-        this.onRejectedCbs.forEach(fn => fn);
+        this.onRejectedCbs.forEach(fn => fn());
       }
     };
     try{
@@ -1045,7 +1045,7 @@ function notify (cacheKey, value) {
 https://www.zhuwenlong.com/blog/article/5937f6c85bc74f66e8fc9a53
 正则匹配，replace
 ```javascript
- // 将金额转换成千分位表示
+// 将金额转换成千分位表示
 milleMoney(element) {
     let milleNum;
     let reg = /(\d{1,3})(?=(\d{3})+$)/g;
@@ -1064,7 +1064,7 @@ milleMoney(element) {
 ```
 
 ```javascript
-// 正则解释：整个正则匹配的内容是''，捕获的第二个分组表达式是每三位的数字，所以直接将每三位数字之前的空字符替换成 ","
+// 正则解释：整个正则匹配的内容是''，捕获的第二个分组表达式是每三位的数字，且每三位数字不是字符串的开头，所以直接将每三位数字之前的空字符替换成 ","
 num.toString().replace(/(?!^)(?=(\d{3})+\.)/g, ",");
 ```
 
@@ -1109,7 +1109,6 @@ function debounce(fn, delay, imme) => {
             fn(...args);
         }
         clearTimeout(timer);
-        timer = null;
         timer = setTimeout(args => {
             fn(...args);
             timer = null;
@@ -1344,7 +1343,7 @@ window.addEventListener('click', (e) => {
 // 方法1：
 //使用cloneNode，但是在元素上绑定的事件不会拷贝
 function clone(origin) {
-    return Object.assign({},origin);
+    return Object.assign({}, origin);
 }
 
 // 方法2：
