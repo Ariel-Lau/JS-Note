@@ -1,13 +1,13 @@
 ## 实现元素隐藏的方式有哪些？
 ### `display: none;`
 特点：
-* 【空间】：隐藏后不占据额外空间，它会产生回流和重绘。检查元素的时候看不到页面上有未显示的元素，但是dom节点还在；
+* 【空间】：隐藏后不占据额外空间，`它会产生回流和重绘`。检查元素的时候看不到页面上有未显示的元素，但是dom节点还在；
 * 【子元素】：不会被子元素继承，但由于父元素都不在了，所以子元素自然也就不会显示了；
 * 【事件】：由于元素都已经不在页面存在了，因此也无法触发它上面绑定的事件；
 * 【过度动画】：无效；
 ### `visibility: hidden;`
 特点：
-* 【空间】：元素虽然隐藏了，但这些元素仍然占据着空间，只会引起页面重绘，不会引起回流。检查元素的时候可以看到页面上有未显示的元素占据着一定的空间，dom节点也在；
+* 【空间】：元素虽然隐藏了，但这些元素仍然占据着空间，`只会引起页面重绘，不会引起回流`。检查元素的时候可以看到页面上有未显示的元素占据着一定的空间，dom节点也在；
 * 【子元素】：会被子元素继承，可以通过设置子元素`visibility:visible` 使子元素显示出来；
 * 【事件】：元素上绑定的事件也无法触发；
 * 【过度动画】：无效；
@@ -107,6 +107,9 @@
     zoom: 1;/* 兼容IE6/7 */
 }
 ```
+
+## css选择器有哪些？
+
 
 ## 样式选择器的权重？优先级？
 !important > 内联样式 > ID选择器 > <font color="red">类选择器</font> = 属性选择器 = 伪类选择器 > <font color="red">元素选择器</font> = 关系选择器 = 伪元素选择器 > 通配符选择器
@@ -265,8 +268,21 @@ rem、em、%、vw、vh、vmax、vmin、vm、rpx
 ```
 
 以下内容参考：https://mp.weixin.qq.com/s/f4h5CUc-H7c8xz6vyk4dYg
+https://juejin.im/post/5c0dd7ac6fb9a049c43d7edc
 
 1. `rem`适配：rem适配的本质是布局等比例的缩放，通过动态设置html的font-size来改变rem的大小。
+   通常在页面初始化时加载时通过对`document.documentElement.style.fontSize`设置来实现。
+
+   `rem`适配规则，通过对`viewport`的`initial-scale = 1/dpr` 设置。
+   `rem`的设定方式， `document.documentElement.style.fontSize = document.documentElement.clientWidth / 10 + 'px'`;
+   `document.documentElement.style.fontSize = document.documentElement.clientWidth / ( 750 / 75 ) + 'px';`
+
+**物理像素（physical pixel）**
+手机屏幕上显示的最小单元，该最小单元具有颜色及亮度的属性可供设置，iphone6、7、8 为：750 * 1334，iphone6+、7+、8+ 为 1242 * 2208
+**设备独立像素（density-indenpendent pixel）**
+此为逻辑像素，计算机设备中的一个点，css 中设置的像素指的就是该像素。老早在没有 retina 屏之前，设备独立像素与物理像素是相等的。
+**设备像素比（device pixel ratio）**
+设备像素比(dpr) = 物理像素/设备独立像素。如 iphone 6、7、8 的 dpr 为 2，那么一个设备独立像素便为 4 个物理像素，因此在 css 上设置的 1px 在其屏幕上占据的是 2个物理像素，0.5px 对应的才是其所能展示的最小单位。这就是 1px 在 retina 屏上变粗的原因，目前有很多办法来解决这一问题。
 
 ## 实现动画的方式有哪些？
 1. css animation @keyframes

@@ -95,6 +95,45 @@
             <div class="margin-child"></div>
         </div>
         <div>这是测试父子元素的margin重叠</div>
+        <!-- 测试事件监听Event -->
+        <div class="test-event">测试事件监听Event</div>
+        <!-- 测试自定义事件 -->
+        <div class="define-event">测试自定义事件</div>
+        <script>
+            const ele = document.querySelector('.test-event');
+            ele.addEventListener('click', event => {
+              alert('我是div元素上被绑定的第一个监听函数');
+            }, false);
+
+            ele.addEventListener('click', event => {
+                alert('我是div元素上被绑定的第二个监听函数');
+                // 执行stopImmediatePropagation方法，阻止click事件冒泡，并且阻止p元素上绑定的其他click事件的事件监听函数的执行。
+                event.stopImmediatePropagation();
+            }, false);
+
+            ele.addEventListener('click', event => {
+              alert('我是div元素上被绑定的第三个监听函数');
+              // 该监听函数排在上个函数后面，该函数不会被执行
+            }, false);
+
+            document.querySelector('body').addEventListener('click', event => {
+              alert('我是body元素，我是div元素的上层元素');
+              // div元素的click事件没有向上冒泡，该函数不会被执行。
+            }, false);
+
+            // ========自定义事件=======
+            // 创建事件
+            var evt = document.createEvent('Event');
+            // 定义事件类型
+            evt.initEvent('customEvent', true, true);
+            // 在元素上监听事件
+            var obj = document.querySelector('.define-event');
+            obj.addEventListener('customEvent', function(){
+                console.log('customEvent 事件触发了');
+            }, false);
+            // 触发事件
+            obj.dispatchEvent(evt);
+        </script>
     </body>
     <style>
         body {
@@ -329,6 +368,21 @@
             background-color: gray;
             margin-top: 50px;
             margin-bottom: 80px;
+        }
+
+        /* ====测试事件监听，阻止同类事件绑定的多个方法执行 */
+        .test-event {
+            width: 200px;
+            height: 100px;
+            border: 1px solid red;
+        }
+
+        /* ====自定义事件类型 */
+        .define-event {
+            margin-top: 20px;
+            width: 200px;
+            height: 100px;
+            border: 1px solid #333;
         }
     </style>
 </html>

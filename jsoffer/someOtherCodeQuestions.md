@@ -329,6 +329,10 @@ prototype(Child, Parent);
 2. 与此同时，原型链还能保持不变；
 3. 因此，还能够正常使用 `instanceof` 和 `isPrototypeOf`。
 
+
+### 6）es6的class extends继承
+https://es6.ruanyifeng.com/#docs/class-extends
+
 ### 继承的其它方式
 https://mp.weixin.qq.com/s/u9STIk4zN-uY_qu2C4790A
 
@@ -625,7 +629,23 @@ undefined
 > arr1
 [ 1, 2, 3, 6, 9 ]
 ```
-2.手写一个实现浅拷贝的方法
+
+2. `Object.assign()`
+![](./imgs/objectassign.jpg)
+3. 直接对象赋值
+```js
+var obj = {a:1}
+undefined
+var obj1 = obj
+undefined
+obj1
+{a: 1}
+obj.a=3
+3
+obj1
+{a: 3}
+```
+4. 手写一个实现浅拷贝的方法
 ```javascript
 //浅拷贝
 function shallowCopy(obj) {
@@ -719,9 +739,10 @@ XSS注入的特点：
 * 富文本
 
 防止XSS攻击的技术：
-1. 转义、过滤内容（比如表单提交内容的过滤），前后端都需要处理这些过滤，达到双重保证。
+1. `输入验证`：转义、过滤内容（比如表单提交内容的过滤），前后端都需要处理这些过滤，达到双重保证。
    `<script>`转义成`&lt;script&gt;`
 2. 对提交到数据库的数据通过`将数据进行JSON序列化处理`
+3. `输出编码`：对输入输出的数据编码处理
 
 
 ### CSRF（Cross-Site Request Forgery）：跨站请求伪造（最大的特点是用户无感知）

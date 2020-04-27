@@ -126,7 +126,7 @@ https://juejin.im/post/5ce764a2f265da1b8c19645a
 ### 队列
 1. 队列是先进先出的数据结构
 2. 队列在尾部添加新元素，并从队首移除元素
-3. js中可以用数组实现：push、unshift
+3. js中可以用数组实现：push、shift
 
 ### 链表
 链表是一种物理存储单元上非连续、非顺序的存储结构，数据元素的逻辑顺序是通过链表中的指针链接次序实现的。
@@ -214,7 +214,7 @@ https://juejin.im/post/5ccfccaff265da03ab233bf5
 
 **注意：**区分强制缓存和协商缓存是根据`cache-control`的以下取值来区分的：
   （5）`no-cache`（协商缓存）：强制客户端直接向服务器发送请求，也就是说每次请求都必须向服务器发送。服务器接收到请求，然后判断资源是否变更，是则返回新内容，否则返回304，未变更。这个很容易让人产生误解，使人误以为是响应不被缓存。实际上`Cache-Control: no-cache`是会被缓存的，只不过每次在向客户端（浏览器）提供响应数据时，缓存都要向服务器评估缓存响应的有效性。即协商缓存。
-  （6）`no-store`(强制缓存)：禁止一切缓存（这个才是响应不被缓存的意思）。
+  （6）`no-store`：禁止一切缓存（这个才是响应不被缓存的意思）。
 
 优先访问`memory cache`，其次是`disk cache`，最后是请求网络资源。
 
@@ -246,9 +246,21 @@ https://mp.weixin.qq.com/s/mMXRsg-sNwxsXwk07Z4FIA
 
 ## 判断一个变量是否是数组？
 1. `Array.isArray(arr)`
-2. `Object.prototype.toString.call(arr) === '[object Array]'`：判断是否是数组需要使用call立即调用，如果不用call直接传入数组到toString()中返回的是`[object object]`，而不会区分是否是数组`[object Array]`
-3. `arr instanceof Array`
-4. `array.constructor === Array`
+2. `arr instanceof Array`
+3. `arr.constructor === Array`或者`arr.__proto__ === Array.prototype`
+4. `Object.prototype.toString.call(arr) === '[object Array]'`：判断是否是数组需要使用call立即调用，如果不用call直接传入数组到toString()中返回的是`[object object]`，而不会区分是否是数组`[object Array]`
+5. 根据数组能力来判断：`arr.slice`
+```js
+var a = []
+undefined
+var b = {}
+undefined
+a.slice
+ƒ slice() { [native code] }
+b.slice
+undefined
+```
+
 
 ## 判断一个变量的类型有哪些方式？
 1. `typeof`
@@ -389,3 +401,113 @@ setData接口的调用涉及逻辑层与渲染层间的线程通信，通信过�
 2. key可能存在覆盖的情况，如果url之前的参数已经有了key值，新加的key值会覆盖掉之前的key值；
 3. 参数需要转码
 4. url可能存在#hash的情况
+
+## DOM创建和修改常用的api
+```js
+// 创建节点
+createElement
+createTextNode
+createDocumentFragment('临时节点')
+// 修改节点
+appendChild parent.appendChild(child)
+insertBefore parentNode.insertBefore(newNode,refNode);
+removeChild parent.removeChild(node)
+replaceChild
+```
+
+## 浏览器解析渲染的过程
+* 解析HTML，生成DOM树；
+* 解析CSS，生成CSSOM树；
+* 将DOM树和CSSOM树关联，生成渲染树(Render Tree)；
+* 布局render树（Layout/reflow），负责各元素尺寸、位置的计算；
+* 绘制render树（paint），绘制页面像素信息；
+* 将像素发送给GPU，展示在页面上。(Display)
+![](./imgs/rendertree.jpg)
+
+## 观察者模式和发布订阅模式的相同点和区别？（待补充）
+https://juejin.im/post/5a14e9edf265da4312808d86
+
+**观察者模式**：观察者和发布者相互知道对方，直接传递信息。
+**发布-订阅**：发布者和订阅者相互不清除对方是谁，需要通过第三方（相当于中介）事件发布订阅中心作为媒介来传递信息。
+中介需要提供订阅的方法（`on`）、发布的方法（`emit`）
+![](https://user-gold-cdn.xitu.io/2017/11/22/15fe1b1f174cd376?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+### 发布-订阅的简单实现
+1. 有一个中间的介质(类)
+2. 介质上需要提供一个订阅的方法(on)
+3. 介质上需要提供一个发布的方法(emit)
+```js
+/* 1.一个中间的介质 */
+function Events() {
+  this.subArr = [];
+}
+
+/* 2.介质上有一个订阅的方法on */
+Events.prototype.on = function (fn) {
+  this.subArr.push(fn);
+}
+
+/* 2.介质上有一个发布的方法emit */
+Events.prototype.emit = function (params) {
+  this.subArr.forEach(fn => fn(params));
+}
+
+let event = new Events();
+
+event.on((params) => {
+  console.log(params);
+})
+
+event.on((params) => {
+  params = `${params} LOVE YOU`
+  console.log(params);
+})
+
+event.emit('I')
+```
+
+### 观察者模式的简单实现
+1. 被观察者要存放在观察者中
+2. 被观察者要提供一个更新数据的方法(setState)
+3. 被观察者需要提供一个注册观察者的方法(attach)
+4. 观察者要提供一个方法(update)用来监控被观察者的数据发生改变之后做出响应
+```js
+function Observer(state) { // 被观察者
+  this.state = state; // 被观察这个的初始状态
+  this.subArr = [];
+}
+
+/* 3.被观察者注册观察者的方法 */
+Observer.prototype.attach = function (subject) {
+  this.subArr.push(subject);
+}
+
+/* 2.被观察者的更新状态方法 */
+Observer.prototype.setState = function (newState) {
+  let oldState = this.state;
+  this.state = newState;
+  this.subArr.forEach(subject => subject.update(oldState, newState));
+}
+
+function Subject(name, target) { // 观察者
+  this.name = name;
+  /* 1.将被观察这个存放到观察者中 */
+  this.target = target;
+}
+
+/* 4.观察者监控被观察者状态变化做出响应的方法 */
+Subject.prototype.update = function (oldState, newState) {
+  console.log(this.name, oldState, newState);
+}
+
+let observer = new Observer('happy');
+
+let subject1 = new Subject('me', observer);
+let subject2 = new Subject('you', observer);
+
+observer.attach(subject1);
+observer.attach(subject2);
+
+observer.setState('sad');
+observer.setState('cry');
+```

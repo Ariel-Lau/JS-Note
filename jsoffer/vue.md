@@ -295,6 +295,29 @@ routes: [
 2. query：查询参数，用来传参数，url中?后面的查询参数；
 
 ### hash和history的区别？
-vue-router 默认 hash 模式 —— 使用 URL 的 hash 来模拟一个完整的 URL，`于是当 URL 改变时，页面不会重新加载`。链接如：`http://yoursite.com/user#id`
-如果不想要很丑的 hash，我们可以用路由的 history 模式，这种模式充分利用 history.pushState API 来完成 URL 跳转而无须重新加载页面。
-当你使用 history 模式时，URL 就像正常的 url，例如 `http://yoursite.com/user/id`，也好看！
+#### hash
+1. 地址栏URL中的#符号，如`http://www.test.com/#/hash`，hash的值为`#/hash`。
+2. hash虽在url中，但不会包括在http请求中，对后端无影响。
+3. 由于2，因此改变hash不会重新加载页面。
+4. 在hash模式中，只有hash符号（`#`）之前的内容会被包含在请求中，如`http://www.test.com`，故后端如果没有做到全覆盖路由，也不会返回404错误。
+5. hash模式的背后是`onhashchange`事件，可以在window对象上监听这个事件。
+6. 在hash模式下，前端路由修改的是`#`中的信息，而浏览器请求是不带hash内容的，所以不会出现404。
+7. 无需后端配置路由。
+8. hash 设置的新值必须与原来不一样才会触发动作将记录添加到栈中；
+
+
+#### history
+1. 利用html5新增的`pushState()`和`replaceState()`方法，这两个方法应用在浏览器的历史记录栈中。在已有的`back\forward\go`的基础上，提供了对历史记录进行修改的功能。
+2. history模式下，前端的url必须和后端发起请求的url一致，例如`http://www.abc.com/boo/id`，如果后端缺少对`book/id`的路由处理，就会返回404错误。
+3. history模式下可以自由的修改path，当刷新时如果没有相应的的响应或者资源，会刷新404出来。
+4. history模式不怕前进、不怕后退，怕刷新（f5）。刷新会请求后端数据。
+5. 需要后端配置路由。（https://juejin.im/post/5e3c3bd0e51d45270d52ff2f）
+6. pushState() 设置的新 URL 可以与当前 URL 一模一样，这样也会把记录添加到栈中
+
+**如果出现404可以怎么解决？**
+后端路由配置一个没有找到对应路由时默认返回的页面，如error.html，相当于有个兜底的页面。
+
+#### 前端路由
+SPA（单页应用）
+前端路由在改变视图的同时不会向后端发起请求。(如hash)
+
