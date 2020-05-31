@@ -261,7 +261,6 @@ b.slice
 undefined
 ```
 
-
 ## 判断一个变量的类型有哪些方式？
 1. `typeof`
 2. `instanceof`

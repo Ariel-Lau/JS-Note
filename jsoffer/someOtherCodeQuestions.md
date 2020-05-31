@@ -329,7 +329,6 @@ prototype(Child, Parent);
 2. 与此同时，原型链还能保持不变；
 3. 因此，还能够正常使用 `instanceof` 和 `isPrototypeOf`。
 
-
 ### 6）es6的class extends继承
 https://es6.ruanyifeng.com/#docs/class-extends
 
